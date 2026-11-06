@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">tteonam</string>
+    <string name="title_login">로그인</string>
+    <string name="title_sign_up">회원가입</string>
+    <string name="title_camera">사진 촬영</string>
+    <string name="title_share">사진 공유</string>
+    <string name="title_photo_map">사진 지도</string>
+    <string name="title_album">앨범</string>
+    <string name="title_photo_detail">사진 상세</string>
+    <string name="title_stats">여행 통계</string>
+    <string name="title_retro_question">회고 질문</string>
+    <string name="title_retro_view">회고록 보기</string>
+    <string name="title_retro_list">회고록 모음</string>
+    <string name="title_group_manage">그룹 관리</string>
+    <string name="title_group_join">그룹 참여</string>
+    <string name="title_travel_type">여행 유형</string>
+    <string name="title_award">멤버 어워드</string>
+    <string name="title_explore">공개 회고록 둘러보기</string>
+</resources>

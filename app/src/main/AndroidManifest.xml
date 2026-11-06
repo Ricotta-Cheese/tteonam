@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <application
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.Tteonam">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:label="@string/title_login"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".SignUpActivity"
+            android:exported="false"
+            android:label="@string/title_sign_up"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".CameraActivity"
+            android:exported="false"
+            android:label="@string/title_camera"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ShareActivity"
+            android:exported="false"
+            android:label="@string/title_share"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".PhotoMapActivity"
+            android:exported="false"
+            android:label="@string/title_photo_map"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".AlbumActivity"
+            android:exported="false"
+            android:label="@string/title_album"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".PhotoDetailActivity"
+            android:exported="false"
+            android:label="@string/title_photo_detail"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".StatsActivity"
+            android:exported="false"
+            android:label="@string/title_stats"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".RetroQuestionActivity"
+            android:exported="false"
+            android:label="@string/title_retro_question"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".RetroViewActivity"
+            android:exported="false"
+            android:label="@string/title_retro_view"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".RetroListActivity"
+            android:exported="false"
+            android:label="@string/title_retro_list"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".GroupManageActivity"
+            android:exported="false"
+            android:label="@string/title_group_manage"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".GroupJoinActivity"
+            android:exported="false"
+            android:label="@string/title_group_join"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".TravelTypeActivity"
+            android:exported="false"
+            android:label="@string/title_travel_type"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".AwardActivity"
+            android:exported="false"
+            android:label="@string/title_award"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".ExploreActivity"
+            android:exported="false"
+            android:label="@string/title_explore"
+            android:windowSoftInputMode="adjustResize" />
+    </application>
+
+</manifest>

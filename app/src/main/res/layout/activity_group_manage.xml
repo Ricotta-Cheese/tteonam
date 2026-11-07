@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F5EFE8"
     android:orientation="vertical">
 
+    <!-- 상단바 -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="56dp">
@@ -18,8 +20,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="뒤로가기"
             android:src="@android:drawable/ic_media_previous"
-            app:tint="#333333"
-            xmlns:app="http://schemas.android.com/apk/res-auto" />
+            app:tint="#222222" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -29,17 +30,257 @@
             android:textColor="#222222"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnMore"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_gravity="center_vertical|end"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="더보기"
+            android:src="@android:drawable/ic_menu_more"
+            app:tint="#222222" />
     </FrameLayout>
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+            <!-- 그룹 정보 카드 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_card"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="12dp">
+
+                <ImageView
+                    android:id="@+id/ivGroupImage"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/bg_thumb"
+                    android:clipToOutline="true"
+                    android:scaleType="centerCrop" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/tvGroupName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="제주도 여행"
+                        android:textColor="#222222"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvGroupInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="10월 1일 ~ 3일 · 멤버 4명"
+                        android:textColor="#8A8178"
+                        android:textSize="11sp" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvStatus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="26dp"
+                    android:background="@drawable/bg_badge_green"
+                    android:paddingStart="10dp"
+                    android:paddingTop="4dp"
+                    android:paddingEnd="10dp"
+                    android:paddingBottom="4dp"
+                    android:text="진행 중"
+                    android:textColor="#2F7D5B"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- 초대 QR / 코드 카드 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_card"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <ImageView
+                    android:id="@+id/ivQr"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:background="#EEEEEE"
+                    android:contentDescription="초대 QR 코드" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="초대 QR · 코드"
+                        android:textColor="#222222"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="친구가 QR을 찍거나\n코드를 입력하면 참여해요"
+                        android:textColor="#6F675F"
+                        android:textSize="11sp" />
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <!--나중에 하드코딩되어있는 초대코드 수정할 예정-->
+                        <TextView
+                            android:id="@+id/tvInviteCode"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:letterSpacing="0.08"
+                            android:text="K7Q2M9"
+                            android:textColor="#222222"
+                            android:textSize="22sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/btnCopy"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:padding="4dp"
+                            android:text="⧉"
+                            android:textColor="#E8806A"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="24시간 후 만료"
+                        android:textColor="#9A8F85"
+                        android:textSize="10sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 멤버 헤더 -->
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="8dp">
+
+                <!--멤버수 고치기-->
+                <TextView
+                    android:id="@+id/tvMemberTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|center_vertical"
+                    android:text="멤버 4"
+                    android:textColor="#222222"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnEdit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end|center_vertical"
+                    android:text="편집"
+                    android:textColor="#8A8178"
+                    android:textSize="11sp" />
+            </FrameLayout>
+
+            <!-- 멤버 목록 (RecyclerView) -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvMembers"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false"
+                    android:overScrollMode="never" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <!-- 하단 버튼 -->
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:background="@color/white"
-        android:layout_marginTop="12dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp">
+        android:paddingStart="16dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="20dp">
 
+        <Button
+            android:id="@+id/btnNewGroup"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_btn_outline"
+            android:stateListAnimator="@null"
+            android:text="+ 새 그룹"
+            android:textColor="#222222"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
+
+        <Button
+            android:id="@+id/btnJoinGroup"
+            android:layout_width="0dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_btn_dark"
+            android:stateListAnimator="@null"
+            android:text="그룹 참여"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null"/>
     </LinearLayout>
 
 </LinearLayout>

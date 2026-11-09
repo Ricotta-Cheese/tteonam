@@ -16,4 +16,23 @@
     <string name="title_travel_type">여행 유형</string>
     <string name="title_award">멤버 어워드</string>
     <string name="title_explore">공개 회고록 둘러보기</string>
+    <string name="hint_email">이메일</string>
+    <string name="hint_password">비밀번호</string>
+    <string name="hint_nickname">닉네임</string>
+    <string name="hint_new_password">비밀번호 (8자 이상)</string>
+    <string name="hint_password_confirm">비밀번호 확인</string>
+    <string name="home_title">홈</string>
+    <string name="action_logout">로그아웃</string>
+    <string name="action_check_input">입력 확인</string>
+    <string name="back_to_login">로그인으로 돌아가기</string>
+    <string name="email_required">이메일을 입력해 주세요.</string>
+    <string name="password_required">비밀번호를 입력해 주세요.</string>
+    <string name="nickname_required">닉네임을 입력해 주세요.</string>
+    <string name="email_invalid">이메일 형식을 확인해 주세요.</string>
+    <string name="password_length_error">비밀번호를 8자 이상 입력해 주세요.</string>
+    <string name="password_mismatch">비밀번호가 일치하지 않습니다.</string>
+    <string name="login_failed">로그인하지 못했습니다. 입력값과 연결 상태를 확인해 주세요.</string>
+    <string name="local_permission_needed">로그인을 테스트하려면 근처 기기 권한을 허용해 주세요.</string>
+    <string name="sign_up_notice">회원가입 기능을 준비하고 있습니다. 현재는 입력값만 확인할 수 있습니다.</string>
+    <string name="sign_up_not_connected">입력값을 확인했습니다. 아직 계정이 저장되지는 않습니다.</string>
 </resources>

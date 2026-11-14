@@ -12,6 +12,7 @@
     <string name="title_retro_view">회고록 보기</string>
     <string name="title_retro_list">회고록 모음</string>
     <string name="title_group_manage">그룹 관리</string>
+    <string name="title_group_create">그룹 생성</string>
     <string name="title_group_join">그룹 참여</string>
     <string name="title_travel_type">여행 유형</string>
     <string name="title_award">멤버 어워드</string>

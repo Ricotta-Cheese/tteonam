@@ -78,9 +78,15 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".GroupManageActivity"
-            android:exported="false"
+            android:exported="true"
             android:label="@string/title_group_manage"
-            android:windowSoftInputMode="adjustResize" />
+            android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".GroupJoinActivity"
             android:exported="false"
@@ -100,6 +106,11 @@
             android:name=".ExploreActivity"
             android:exported="false"
             android:label="@string/title_explore"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".GroupCreateActivity"
+            android:exported="false"
+            android:label="@string/title_group_create"
             android:windowSoftInputMode="adjustResize" />
     </application>
 

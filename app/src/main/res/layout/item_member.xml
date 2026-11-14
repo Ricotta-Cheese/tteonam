@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- 한 줄 내용 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- 프로필 동그라미: 이름 첫 글자 -->
+        <TextView
+            android:id="@+id/tvAvatar"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:background="@drawable/bg_avatar_circle"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="지" />
+
+        <!-- 이름 -->
+        <TextView
+            android:id="@+id/tvMemberName"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:textColor="#222222"
+            android:textSize="14sp"
+            tools:text="지수 (나)" />
+
+        <!-- 방장 배지: 방장일 때만 보임 -->
+        <TextView
+            android:id="@+id/tvLeaderBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_badge_leader"
+            android:paddingStart="8dp"
+            android:paddingTop="2dp"
+            android:paddingEnd="8dp"
+            android:paddingBottom="2dp"
+            android:text="방장"
+            android:textColor="#D0604E"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone"
+            tools:visibility="visible" />
+    </LinearLayout>
+
+    <!-- 구분선: 마지막 줄에서는 숨김 -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#EFE8E0" />
+</LinearLayout>

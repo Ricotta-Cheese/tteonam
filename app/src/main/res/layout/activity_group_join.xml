@@ -18,7 +18,7 @@
             android:layout_marginStart="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="뒤로가기"
-            android:src="@android:drawable/ic_media_previous"
+            android:src="@drawable/ic_arrow_back"
             app:tint="#333333"
             xmlns:app="http://schemas.android.com/apk/res-auto" />
 

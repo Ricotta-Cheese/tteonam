@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="#F5EFE8"
     android:orientation="vertical">
 
@@ -19,7 +20,7 @@
             android:layout_marginStart="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="뒤로가기"
-            android:src="@android:drawable/ic_media_previous"
+            android:src="@drawable/ic_arrow_back"
             app:tint="#222222" />
 
         <TextView
@@ -31,19 +32,38 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <ImageButton
-            android:id="@+id/btnMore"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+        <Button
+            android:id="@+id/btnEndTrip"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
             android:layout_gravity="center_vertical|end"
             android:layout_marginEnd="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="더보기"
-            android:src="@android:drawable/ic_menu_more"
-            app:tint="#222222" />
+            android:background="@drawable/bg_btn_end_trip"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
+            android:stateListAnimator="@null"
+            android:text="여행 끝내기"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            app:backgroundTint="@null" />
     </FrameLayout>
 
+    <TextView
+        android:id="@+id/emptyGroup"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="아직 참여한 그룹이 없어요"
+        android:visibility="gone"/>
+
     <ScrollView
+        android:id="@+id/inProcess"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -91,14 +111,31 @@
                         android:textSize="15sp"
                         android:textStyle="bold" />
 
-                    <TextView
+                    <LinearLayout
                         android:id="@+id/tvGroupInfo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="10월 1일 ~ 3일 · 멤버 4명"
-                        android:textColor="#8A8178"
-                        android:textSize="11sp" />
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/gmStartDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="2026.11.15"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginEnd="10dp"
+                            android:text="~"/>
+
+                        <TextView
+                            android:id="@+id/gmEndDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="2026.1.20"/>
+                    </LinearLayout>
                 </LinearLayout>
 
                 <TextView

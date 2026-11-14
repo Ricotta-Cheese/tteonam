@@ -8,11 +8,14 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.RecyclerView;
+import com.example.tteonam.databinding.ItemMemberBinding;
 
 import com.example.tteonam.databinding.ActivityGroupManageBinding;
 
@@ -116,5 +119,27 @@ public class GroupManageActivity extends AppCompatActivity {
         members.add(new Member("전찬영",true));
         members.add(new Member("박이든",false));
         members.add(new Member("임성민",false));
+    }
+
+    //viewholder
+    private class viewHolder extends RecyclerView.ViewHolder {
+        private ItemMemberBinding itemMemberBinding;
+        public viewHolder(@NonNull ItemMemberBinding itemBinding) {
+            super(itemBinding.getRoot());
+            this.itemMemberBinding = itemBinding;
+        }
+        private void bind(Member member){
+            String name = member.getName();
+
+            itemMemberBinding.tvMemberName.setText(name);
+            itemMemberBinding.tvAvatar.setText(name.substring(0, 1));
+
+            if(member.isLeader()) {
+                itemMemberBinding.tvLeaderBadge.setVisibility(View.VISIBLE);
+            }
+            else {
+                itemMemberBinding.tvLeaderBadge.setVisibility(View.GONE);
+            }
+        }
     }
 }

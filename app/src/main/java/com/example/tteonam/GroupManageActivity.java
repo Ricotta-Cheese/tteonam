@@ -2,7 +2,9 @@ package com.example.tteonam;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -14,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.tteonam.databinding.ItemMemberBinding;
 
@@ -22,6 +25,7 @@ import com.example.tteonam.databinding.ActivityGroupManageBinding;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -46,11 +50,17 @@ public class GroupManageActivity extends AppCompatActivity {
             return insets;
         });
 
+        //test
+        //groupName = "테스트";
+
         //화면 상태 확인
         groupViewUpdate();
 
         //멤버확인
         loadMembers();
+
+        binding.rvMembers.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvMembers.setAdapter(new MemberAdapter(members));
 
         ActivityResultLauncher<Intent> launcher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
@@ -98,6 +108,14 @@ public class GroupManageActivity extends AppCompatActivity {
 
             }
         });
+
+        //여행끝내기 버튼
+        binding.btnEndTrip.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //강제종료
+            }
+        });
         
     }
     //화면에 그룹이 있을 때 없을 때 구분하는 함수
@@ -121,10 +139,45 @@ public class GroupManageActivity extends AppCompatActivity {
         members.add(new Member("임성민",false));
     }
 
+    //Adapter
+    private class MemberAdapter extends RecyclerView.Adapter<MemberViewHolder> {
+
+        private List<Member> data;
+
+        private MemberAdapter(List<Member> data) {
+            this.data = data;
+        }
+
+        @NonNull
+        @Override
+        public MemberViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            ItemMemberBinding itemMemberBinding = ItemMemberBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+            return new MemberViewHolder(itemMemberBinding);
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull MemberViewHolder holder, int position) {
+            Member member = data.get(position);
+            holder.bind(member);
+
+            if(position == getItemCount() - 1) {
+                holder.itemMemberBinding.divider.setVisibility(View.GONE);
+            }
+            else {
+                holder.itemMemberBinding.divider.setVisibility(View.VISIBLE);
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return data.size();
+        }
+    }
+
     //viewholder
-    private class viewHolder extends RecyclerView.ViewHolder {
+    private class MemberViewHolder extends RecyclerView.ViewHolder {
         private ItemMemberBinding itemMemberBinding;
-        public viewHolder(@NonNull ItemMemberBinding itemBinding) {
+        public MemberViewHolder(@NonNull ItemMemberBinding itemBinding) {
             super(itemBinding.getRoot());
             this.itemMemberBinding = itemBinding;
         }

@@ -1,10 +1,14 @@
 package com.example.tteonam;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -16,6 +20,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.tteonam.databinding.ItemMemberBinding;
@@ -33,6 +38,8 @@ public class GroupManageActivity extends AppCompatActivity {
 
     private ActivityGroupManageBinding binding;
     private String groupName;
+    private String inviteCode;
+    private long getStartTime;
     ArrayList<Member> members = new ArrayList<>();
 
     @Override
@@ -79,10 +86,31 @@ public class GroupManageActivity extends AppCompatActivity {
                     //종료날짜
                     long endDate = data.getLongExtra("endDate",-1);
                     binding.gmEndDate.setText(fmt.format(new Date(endDate)));
+                    //초대 코드
+                    inviteCode = data.getStringExtra("inviteCode");
+                    binding.tvInviteCode.setText(inviteCode);
+
+                    //초대코드 시작시간
+                    getStartTime = data.getLongExtra("currentTime",-1);
+
+                    //만료시간 표시
+                    binding.expirationDate.setText(stringExpirationTime());
 
                     groupViewUpdate();
                 }
             }
+        });
+
+        //코드복사터치
+        binding.btnCopy.setOnClickListener(view ->{
+            //시스템한테 클립보드관리자를 받는다.
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            //복사할 문자열을 포장에 담는다.
+            ClipData clip = ClipData.newPlainText("inviteCode",inviteCode);
+            //클립보드에 올린다.
+            clipboard.setPrimaryClip(clip);
+            //토스트 띄우기
+            Toast.makeText(this,"복사완료",Toast.LENGTH_SHORT).show();
         });
 
         //back버튼
@@ -101,7 +129,7 @@ public class GroupManageActivity extends AppCompatActivity {
             }
         });
 
-        //참여 버튼
+        //그룹참여 버튼
         binding.btnJoinGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,6 +146,18 @@ public class GroupManageActivity extends AppCompatActivity {
         });
         
     }
+
+    //만료기간 만들기
+    private String stringExpirationTime() {
+        long currentTime = System.currentTimeMillis();
+        long expirationTime = getStartTime+(24 * 60 * 60 * 1000L);
+
+        SimpleDateFormat fmt = new SimpleDateFormat("HH시간 mm분 후 만료", Locale.KOREA);
+        fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+        if(expirationTime<currentTime) return fmt.format(new Date(expirationTime-currentTime));
+        else return "코드 만료됨";
+    }
+
     //화면에 그룹이 있을 때 없을 때 구분하는 함수
     private void groupViewUpdate() {
         if(groupName == null) {
@@ -129,6 +169,8 @@ public class GroupManageActivity extends AppCompatActivity {
             binding.inProcess.setVisibility(View.VISIBLE);
             binding.btnEndTrip.setVisibility(View.VISIBLE);
             binding.emptyGroup.setVisibility(View.GONE);
+            //+그룹 버튼 잠금
+            binding.btnNewGroup.setVisibility(View.GONE);
         }
     }
 

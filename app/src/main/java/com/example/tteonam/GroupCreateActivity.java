@@ -19,12 +19,15 @@ import com.google.android.material.datepicker.MaterialDatePicker;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 import java.util.TimeZone;
 
 public class GroupCreateActivity extends AppCompatActivity {
     ActivityGroupCreateBinding binding;
     private long startDate;
     private long endDate;
+    private long currentTime;
+    private String inviteCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +99,9 @@ public class GroupCreateActivity extends AppCompatActivity {
                 setResult(RESULT_OK, new Intent()
                         .putExtra("groupName",binding.etTitle.getText().toString())
                         .putExtra("startDate",startDate)
-                        .putExtra("endDate",endDate));
+                        .putExtra("endDate",endDate)
+                        .putExtra("inviteCode",makeInviteCode())
+                        .putExtra("currentTime",currentTime));
                 finish();
             }
         });
@@ -105,5 +110,20 @@ public class GroupCreateActivity extends AppCompatActivity {
     private boolean isDone() {
         boolean isDoneText = !binding.etTitle.getText().toString().trim().isEmpty();
         return (startDate!=0 && isDoneText);
+    }
+
+    private String makeInviteCode() {
+        String alpha = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+
+        for(int i=0; i<6; i++) {
+            sb.append(alpha.charAt(random.nextInt(alpha.length())));
+        }
+        inviteCode = sb.toString();
+
+        currentTime = System.currentTimeMillis();
+
+        return inviteCode;
     }
 }

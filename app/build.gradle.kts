@@ -63,4 +63,33 @@ dependencies {
 //    ml kit (앱과 함께 번들로 묶기)
     // Use this dependency to bundle the model with your app
     implementation("com.google.mlkit:image-labeling:17.0.9")
+
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
+
+    // When using the BoM, don't specify versions in Firebase dependencies
+    implementation("com.google.firebase:firebase-analytics")
+
+    // Add the dependencies for any other desired Firebase products
+    // https://firebase.google.com/docs/android/setup#available-libraries
+
+    // Add the dependency for the Firebase Authentication library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-auth")
+
+    // Also add the dependencies for the Credential Manager libraries and specify their versions
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+
+    // Add the dependency for the Cloud Storage library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-storage")
+
+    // FirebaseUI Storage only
+    implementation("com.firebaseui:firebase-ui-storage:9.0.0")
+
+    // For @GlideModule
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
 }

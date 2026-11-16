@@ -2,21 +2,25 @@ package com.example.tteonam;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.ContentValues;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Looper;
-import android.provider.MediaStore;
+import android.os.HandlerThread;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
+import android.view.OrientationEventListener;
+import android.view.Surface;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -51,20 +55,32 @@ import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.mlkit.vision.common.InputImage;
 import com.google.mlkit.vision.label.ImageLabel;
 import com.google.mlkit.vision.label.ImageLabeler;
 import com.google.mlkit.vision.label.ImageLabeling;
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class CameraActivity extends AppCompatActivity {
 
-    private static final String TAG = "camera";
+    private static final String TAG = "tn";
+
+    // 앱 전용 폴더(filesDir) 안의 사진 폴더 이름(휴대폰 갤러리에는 안 보임)
+    public static final String PHOTO_DIR = "photos";
 
     private Geocoder geocoder;
     private FusedLocationProviderClient fusedClient;
@@ -74,19 +90,30 @@ public class CameraActivity extends AppCompatActivity {
     private CameraControl cameraControl;
     private CameraInfo cameraInfo;
 
-    // UseCase
     private Preview preview;
     private ImageCapture imageCapture;
 
-    // Camera State
     private boolean isFlashOn = false;
     private boolean isFrontCamera = false;
 
-    // Location
-    private Location latestLocation;          // 가장 최근 위치(위치 정보 빠르게 저장하기 위해서)
+    // 가장 최근 위치(위치 정보 빠르게 저장하기 위해서)
     private LocationCallback locationCallback;
 
+    private volatile Location latestLocation;
+
+    // 위치 갱신을 받는 전용 스레드(메인 스레드 방해 X)
+    private HandlerThread locationThread;
+
+    // 최근 위치 인정 시간
+    private static final long LOCATION_FRESH_MS = 10_000;
+
     private ImageLabeler labeler;
+
+    // 회전 감지(<< CameraActivity만 회전)
+    private OrientationEventListener orientationListener;
+
+    // 촬영결과 + 파일저장 스레드
+    private ExecutorService cameraExecutor;
 
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA,
@@ -125,13 +152,18 @@ public class CameraActivity extends AppCompatActivity {
 
         fusedClient = LocationServices.getFusedLocationProviderClient(this);
         geocoder = new Geocoder(this);
+        locationThread = new HandlerThread("tn-location");
+        locationThread.start();
         initLocationCallback();
+        initOrientationListener();
 
         setListeners();
 
         checkAndRequestPermissions();
 
         initImageLabeler();
+
+        cameraExecutor = Executors.newSingleThreadExecutor();
 
         startCamera();
     }
@@ -140,13 +172,26 @@ public class CameraActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         startLocationUpdates();
+        orientationListener.enable();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        orientationListener.disable();
         if (locationCallback != null) {
             fusedClient.removeLocationUpdates(locationCallback);   // 배터리 절약, 꼭 해제
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (cameraExecutor != null) {
+            cameraExecutor.shutdown();
+        }
+        if (locationThread != null) {
+            locationThread.quitSafely();
         }
     }
 
@@ -192,7 +237,30 @@ public class CameraActivity extends AppCompatActivity {
         LocationRequest request = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 5000)
                 .setMinUpdateIntervalMillis(2000)
                 .build();
-        fusedClient.requestLocationUpdates(request, locationCallback, Looper.getMainLooper());
+        // 콜백을 위치 스레드에서
+        fusedClient.requestLocationUpdates(request, locationCallback, locationThread.getLooper());
+    }
+
+    // 받아둔 위치가 최근 값인지 확인
+    private boolean isFresh(Location location) {
+        if (location == null) return false;
+        long ageMs = (SystemClock.elapsedRealtimeNanos() - location.getElapsedRealtimeNanos()) / 1_000_000;
+        return ageMs <= LOCATION_FRESH_MS;
+    }
+
+    // 새 위치를 따로 요청
+    @SuppressLint("MissingPermission")
+    private void requestFreshLocation(AtomicReference<Location> target) {
+        if (!hasLocationPermission()) return;
+
+        fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
+                .addOnSuccessListener(location -> {
+                    if (location == null) return;
+                    latestLocation = location;
+                    target.set(location);   // 이 사진의 위치를 새 값으로 교체
+                    Log.d(TAG, "새 위치 도착");
+                })
+                .addOnFailureListener(e -> Log.d(TAG, "새 위치 요청 실패", e));
     }
 
     // 테스트용(위치 버튼)
@@ -235,6 +303,30 @@ public class CameraActivity extends AppCompatActivity {
 
                 })
                 .addOnFailureListener(e -> Log.d(TAG, "위치 요청 실패", e));
+    }
+
+    // ───────────────────────── Orientation ─────────────────────────
+
+    // CameraActivity만 가로세로 구분
+    private void initOrientationListener() {
+        orientationListener = new OrientationEventListener(this) {
+            @Override
+            public void onOrientationChanged(int orientation) {
+                if (orientation == ORIENTATION_UNKNOWN || imageCapture == null) return;
+
+                int rotation;
+                if (orientation >= 45 && orientation < 135) {
+                    rotation = Surface.ROTATION_270;
+                } else if (orientation >= 135 && orientation < 225) {
+                    rotation = Surface.ROTATION_180;
+                } else if (orientation >= 225 && orientation < 315) {
+                    rotation = Surface.ROTATION_90;
+                } else {
+                    rotation = Surface.ROTATION_0;
+                }
+                imageCapture.setTargetRotation(rotation);
+            }
+        };
     }
 
     // ───────────────────────── Camera ─────────────────────────
@@ -295,64 +387,107 @@ public class CameraActivity extends AppCompatActivity {
         if (imageCapture == null) return;
 
         // getCurrentLocation().getResult()로 기다리지 않고, 미리 받아둔 위치를 바로 사용
-        Location location = latestLocation;
+        // 받아둔 위치가 오래돼면 위치 요청 저장이 끝날 때 도착해 있으면 그걸 사용
+        AtomicReference<Location> shotLocation = new AtomicReference<>(latestLocation);
+        if (!isFresh(shotLocation.get())) {
+            Log.d(TAG, "받아둔 위치가 없거나 오래됨 -> 새 위치 요청");
+            requestFreshLocation(shotLocation);
+        }
 
-        String name = "IMG_" + System.currentTimeMillis();
-        ContentValues values = new ContentValues();
-        values.put(MediaStore.MediaColumns.DISPLAY_NAME, name);
-        values.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
-        values.put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/tteonam");
+        // 휴대폰 갤러리에 넣지 않고 앱 전용 폴더에만 저장
+        String name = "IMG_" + System.currentTimeMillis() + ".jpg";
+        File photoFile = new File(new File(getFilesDir(), PHOTO_DIR), name);
 
-        // 위치를 사진 EXIF에 기록
-        ImageCapture.Metadata metadata = new ImageCapture.Metadata();
-        if (location != null) metadata.setLocation(location);
-
-        ImageCapture.OutputFileOptions outputOptions =
-                new ImageCapture.OutputFileOptions.Builder(getContentResolver(), MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-                        .setMetadata(metadata)
-                        .build();
-
-//        OnImageSavedCallback / OnImageCapturedCallback 택 1
-        imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this),
-                new ImageCapture.OnImageSavedCallback() {
+//        OnImageSavedCallback / OnImageCapturedCallback 택 1 -> 전용폴더 -> OnImageCapturedCallback
+        imageCapture.takePicture(cameraExecutor,
+                new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onError(@NonNull ImageCaptureException exc) {
                         Log.d(TAG, "사진 촬영 실패: " + exc.getMessage(), exc);
                     }
 
                     @Override
-                    public void onImageSaved(@NonNull ImageCapture.OutputFileResults output) {
-                        Uri savedUri = output.getSavedUri();
-                        String msg = (location != null)
-                                ? "저장됨 (lat: " + location.getLatitude() + ", lng: " + location.getLongitude() + ")"
-                                : "저장됨 (위치 정보 없음)";
-                        Toast.makeText(CameraActivity.this, msg, Toast.LENGTH_SHORT).show();
-                        Log.d(TAG, "저장 Uri: " + savedUri);
+                    public void onCaptureSuccess(@NonNull ImageProxy image) {
+                        int rotation = image.getImageInfo().getRotationDegrees();
 
-                        // fromFilePath
-                        try{
-                            InputImage inputImage = InputImage.fromFilePath(getApplicationContext(), savedUri);
-
-
-                            labeler.process(inputImage)
-                                    .addOnSuccessListener(labels->{
-                                        for(ImageLabel label : labels){
-                                            String text = label.getText();
-                                            float confidence = label.getConfidence();
-                                            int index = label.getIndex();
-
-                                            Log.d("Label",index+": "+confidence+", "+text);
-                                        }
-                                    })
-                                    .addOnFailureListener(e -> {
-                                        Log.d("Label","labelling failed");
-                                    });
+                        try {
+                            saveJpeg(image, photoFile);
+                        } catch (IOException e) {
+                            Log.e(TAG, "사진 저장 실패", e);
+                            return;
+                        } finally {
+                            image.close();   // 꼭 닫기, 안 닫으면 다음 촬영이 막힘
                         }
-                        catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
+
+                        // cameraExecutor 스레드 -> 화면 관련 작업은 메인 스레드로
+                        runOnUiThread(() -> onPhotoSaved(photoFile, rotation, shotLocation.get()));
                     }
                 });
+    }
+
+    // ImageProxy(JPEG)를 그대로 파일로 저장
+    private void saveJpeg(ImageProxy image, File photoFile) throws IOException {
+        File dir = photoFile.getParentFile();
+        if (dir != null && !dir.exists() && !dir.mkdirs()) {
+            throw new IOException("사진 폴더 생성 실패: " + dir);
+        }
+
+        // 기본 설정의 ImageCapture는 JPEG 한 장 -> planes[0]에 파일 내용이 통째로 들어 있음
+        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+        byte[] bytes = new byte[buffer.remaining()];
+        buffer.get(bytes);
+
+        try (FileOutputStream out = new FileOutputStream(photoFile)) {
+            out.write(bytes);
+        }
+    }
+
+    private void onPhotoSaved(File photoFile, int rotation, Location location) {
+        Uri savedUri = Uri.fromFile(photoFile);
+        String msg = (location != null)
+                ? "저장됨 (lat: " + location.getLatitude() + ", lng: " + location.getLongitude() + ")"
+                : "저장됨 (위치 정보 없음)";
+        Toast.makeText(CameraActivity.this, msg, Toast.LENGTH_SHORT).show();
+        Log.d(TAG, "저장 Uri: " + savedUri);
+
+        saveToServer();
+
+        // fromFilePath
+        try{
+            InputImage inputImage = InputImage.fromFilePath(getApplicationContext(), savedUri);
+
+
+            labeler.process(inputImage)
+                    .addOnSuccessListener(labels->{
+                        for(ImageLabel label : labels){
+                            String text = label.getText();
+                            float confidence = label.getConfidence();
+                            int index = label.getIndex();
+
+                            Log.d(TAG,"label "+index+": "+confidence+", "+text);
+                        }
+                    })
+                    .addOnFailureListener(e -> {
+                        Log.d(TAG,"labelling failed");
+                    });
+        }
+        catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        openPhotoDetail(photoFile, rotation, location);
+    }
+
+    // 사진 경로를 PhotoDetailActivity로 넘기기
+    private void openPhotoDetail(File photoFile, int rotation, Location location) {
+        Intent intent = new Intent(CameraActivity.this, PhotoDetailActivity.class);
+        intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_PATH, photoFile.getAbsolutePath());
+        intent.putExtra(PhotoDetailActivity.EXTRA_ROTATION, rotation);
+        if (location != null) {
+            intent.putExtra(PhotoDetailActivity.EXTRA_LAT, location.getLatitude());
+            intent.putExtra(PhotoDetailActivity.EXTRA_LNG, location.getLongitude());
+        }
+        startActivity(intent);
     }
 
     private void toggleFlashlight() {
@@ -382,5 +517,10 @@ public class CameraActivity extends AppCompatActivity {
 
         labeler = ImageLabeling.getClient(options);
 //        labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS);
+    }
+
+    // ───────────────────────── Firebase storage ─────────────────────────
+    private void saveToServer(){
+
     }
 }

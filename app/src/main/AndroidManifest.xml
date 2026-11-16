@@ -19,6 +19,7 @@
         android:theme="@style/Theme.Tteonam">
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -29,81 +30,97 @@
         </activity>
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_login"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".SignUpActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_sign_up"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".CameraActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:label="@string/title_camera"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ShareActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_share"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".PhotoMapActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_photo_map"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".AlbumActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_album"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".PhotoDetailActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_photo_detail"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".StatsActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_stats"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".RetroQuestionActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_retro_question"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".RetroViewActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_retro_view"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".RetroListActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_retro_list"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".GroupManageActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_group_manage"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".GroupJoinActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_group_join"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".TravelTypeActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_travel_type"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".AwardActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_award"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ExploreActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_explore"
             android:windowSoftInputMode="adjustResize" />

@@ -14,7 +14,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class MainActivity extends AppCompatActivity {
-    private final static String TAG = "main";
+    private final static String TAG = "tn";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

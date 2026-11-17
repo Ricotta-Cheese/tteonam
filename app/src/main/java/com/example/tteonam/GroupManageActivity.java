@@ -93,8 +93,6 @@ public class GroupManageActivity extends AppCompatActivity {
                     //초대코드 시작시간
                     getStartTime = data.getLongExtra("currentTime",-1);
 
-                    //만료시간 표시
-                    binding.expirationDate.setText(stringExpirationTime());
 
                     groupViewUpdate();
                 }
@@ -147,6 +145,13 @@ public class GroupManageActivity extends AppCompatActivity {
         
     }
 
+    @Override
+    protected void onResume() {
+        //만료시간 표시
+        binding.expirationDate.setText(stringExpirationTime());
+        super.onResume();
+    }
+
     //만료기간 만들기
     private String stringExpirationTime() {
         long currentTime = System.currentTimeMillis();
@@ -154,7 +159,7 @@ public class GroupManageActivity extends AppCompatActivity {
 
         SimpleDateFormat fmt = new SimpleDateFormat("HH시간 mm분 후 만료", Locale.KOREA);
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
-        if(expirationTime<currentTime) return fmt.format(new Date(expirationTime-currentTime));
+        if(expirationTime>currentTime) return fmt.format(new Date(expirationTime-currentTime));
         else return "코드 만료됨";
     }
 
@@ -169,8 +174,9 @@ public class GroupManageActivity extends AppCompatActivity {
             binding.inProcess.setVisibility(View.VISIBLE);
             binding.btnEndTrip.setVisibility(View.VISIBLE);
             binding.emptyGroup.setVisibility(View.GONE);
-            //+그룹 버튼 잠금
+            //+그룹 버튼 잠금, 그룹참여
             binding.btnNewGroup.setVisibility(View.GONE);
+            binding.btnJoinGroup.setVisibility(View.GONE);
         }
     }
 

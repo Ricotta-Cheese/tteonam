@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 여행 테마 배경 (정사각형): 하늘 그라데이션 + 해 + 구름 + 비행기 경로 + 산 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="200dp"
+    android:height="200dp"
+    android:viewportWidth="360"
+    android:viewportHeight="360"
+    >
+    <clip-path
+        android:pathData="M24,0 H336 A24,24 0 0 1 360,24 V336 A24,24 0 0 1 336,360 H24 A24,24 0 0 1 0,336 V24 A24,24 0 0 1 24,0 Z" />
+
+    <!-- 하늘 -->
+    <path android:pathData="M0,0h360v360h-360z">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:type="linear"
+                android:startX="0" android:startY="0"
+                android:endX="0" android:endY="360"
+                android:startColor="#FF8EC5FC"
+                android:endColor="#FFFDF6E3" />
+        </aapt:attr>
+    </path>
+
+    <!-- 해 -->
+    <path
+        android:fillColor="#FFFFD166"
+        android:pathData="M290,70m-32,0a32,32 0,1 1,64 0a32,32 0,1 1,-64 0" />
+
+    <!-- 구름 1 -->
+    <path
+        android:fillColor="#E6FFFFFF"
+        android:pathData="M30,90a20,20 0,0 1,36 -9a24,24 0,0 1,44 7a16,16 0,0 1,4 30h-80a14,14 0,0 1,-4 -28z" />
+
+    <!-- 구름 2 -->
+    <path
+        android:fillColor="#CCFFFFFF"
+        android:pathData="M190,140a14,14 0,0 1,26 -7a18,18 0,0 1,32 5a12,12 0,0 1,2 23h-58a11,11 0,0 1,-2 -21z" />
+
+
+    <!-- 뒤쪽 산 -->
+    <path
+        android:fillColor="#FF9AD1D4"
+        android:pathData="M0,270 L70,205 L130,245 L210,185 L300,240 L360,210 L360,360 L0,360 Z" />
+
+    <!-- 앞쪽 산 -->
+    <path
+        android:fillColor="#FF5FA8A0"
+        android:pathData="M0,310 L90,250 L170,295 L250,240 L360,300 L360,360 L0,360 Z" />
+
+    <!-- 땅 -->
+    <path
+        android:fillColor="#FF3D7A6E"
+        android:pathData="M0,335 Q180,315 360,335 L360,360 L0,360 Z" />
+</vector>

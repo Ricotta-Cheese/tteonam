@@ -14,6 +14,8 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.core.util.Pair;
 
 import com.example.tteonam.databinding.ActivityGroupCreateBinding;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
 import com.google.android.material.datepicker.MaterialDatePicker;
 
 import java.text.SimpleDateFormat;
@@ -71,8 +73,17 @@ public class GroupCreateActivity extends AppCompatActivity {
 
         //기간선택
         binding.layoutDateRange.setOnClickListener(view->{
+            //두번 뜨는걸 방지
+            binding.layoutDateRange.setEnabled(false);
+
+            //오늘 이전 날짜는 선택 못 하게 막는 제약 조건 검사기 생성
+            CalendarConstraints constraints = new CalendarConstraints.Builder()
+                    .setValidator(DateValidatorPointForward.now())
+                    .build();
+
             MaterialDatePicker<Pair<Long,Long>> picker = MaterialDatePicker.Builder.dateRangePicker()
                     .setTitleText("여행기간 선택")
+                    .setCalendarConstraints(constraints)
                     .build();
 
             picker.addOnPositiveButtonClickListener(selection ->{
@@ -86,6 +97,11 @@ public class GroupCreateActivity extends AppCompatActivity {
                 binding.tvEndDate.setText(fmt.format(new Date(endDate)));
 
                 binding.btnDone.setEnabled(isDone());
+            });
+
+            //달력이 닫힐 때 잠금 풀어줌
+            picker.addOnDismissListener(dialogInterface -> {
+                binding.layoutDateRange.setEnabled(true);
             });
 
             picker.show(getSupportFragmentManager(), "DATE_PICKER");

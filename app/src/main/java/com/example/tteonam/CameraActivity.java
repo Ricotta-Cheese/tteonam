@@ -475,17 +475,17 @@ public class CameraActivity extends AppCompatActivity {
             throw new RuntimeException(e);
         }
 
-        openPhotoDetail(photoFile, rotation, location);
+        openShare(photoFile, rotation, location);
     }
 
-    // 사진 경로를 PhotoDetailActivity로 넘기기
-    private void openPhotoDetail(File photoFile, int rotation, Location location) {
-        Intent intent = new Intent(CameraActivity.this, PhotoDetailActivity.class);
-        intent.putExtra(PhotoDetailActivity.EXTRA_PHOTO_PATH, photoFile.getAbsolutePath());
-        intent.putExtra(PhotoDetailActivity.EXTRA_ROTATION, rotation);
+    // 사진 경로를 ShareActivity로
+    private void openShare(File photoFile, int rotation, Location location) {
+        Intent intent = new Intent(CameraActivity.this, ShareActivity.class);
+        intent.putExtra(ShareActivity.EXTRA_PHOTO_PATH, photoFile.getAbsolutePath());
+        intent.putExtra(ShareActivity.EXTRA_ROTATION, rotation);
         if (location != null) {
-            intent.putExtra(PhotoDetailActivity.EXTRA_LAT, location.getLatitude());
-            intent.putExtra(PhotoDetailActivity.EXTRA_LNG, location.getLongitude());
+            intent.putExtra(ShareActivity.EXTRA_LAT, location.getLatitude());
+            intent.putExtra(ShareActivity.EXTRA_LNG, location.getLongitude());
         }
         startActivity(intent);
     }

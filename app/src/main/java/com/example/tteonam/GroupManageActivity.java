@@ -138,7 +138,7 @@ public class GroupManageActivity extends AppCompatActivity {
         binding.btnJoinGroup.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startActivity(new Intent(GroupManageActivity.this, GroupJoinActivity.class));
             }
         });
 

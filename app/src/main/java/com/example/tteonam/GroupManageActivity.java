@@ -3,6 +3,7 @@ package com.example.tteonam;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +39,7 @@ public class GroupManageActivity extends AppCompatActivity {
 
     private ActivityGroupManageBinding binding;
     private String groupName;
+    private String groupImage;
     private String inviteCode;
     private long getStartTime;
     ArrayList<Member> members = new ArrayList<>();
@@ -77,6 +79,11 @@ public class GroupManageActivity extends AppCompatActivity {
 
                     SimpleDateFormat fmt = new SimpleDateFormat("yyyy.MM.dd.", Locale.KOREA);
                     fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    //그룹 이미지
+                    groupImage = data.getStringExtra("groupImage");
+                    if(groupImage != null){
+                        binding.ivGroupImage.setImageURI(Uri.parse(groupImage));
+                    }
                     //그룹이름
                     groupName = data.getStringExtra("groupName");
                     binding.tvGroupName.setText(groupName);

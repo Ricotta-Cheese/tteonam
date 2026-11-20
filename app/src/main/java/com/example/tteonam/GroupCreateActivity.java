@@ -1,11 +1,16 @@
 package com.example.tteonam;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -30,6 +35,7 @@ public class GroupCreateActivity extends AppCompatActivity {
     private long endDate;
     private long currentTime;
     private String inviteCode;
+    private Uri photoUri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +51,37 @@ public class GroupCreateActivity extends AppCompatActivity {
             return insets;
         });
 
+        //사진 고르기 런처 등록
+        ActivityResultLauncher<PickVisualMediaRequest> photoLauncher =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    //잠금 이미지선택 layout을 품
+                    binding.imageArea.setEnabled(true);
+                    //사용자가 안 고르고 뒤로 나가면 null
+                    if (uri == null) return;
+
+                    photoUri = uri;                        //완료 버튼에서 넘기려고 저장
+                    binding.ivGroupImage.setImageURI(uri);      //미리보기
+                    binding.tvAttach.setVisibility(View.GONE);
+
+                });
+
         //back버튼
         binding.btnBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
             }
+        });
+
+        //사진 첨부 영역 누르면 사진 선택기 띄우기
+        binding.imageArea.setOnClickListener(view -> {
+            //한번만 실행하도록 layout 잠금
+            binding.imageArea.setEnabled(false);
+
+            photoLauncher.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+
         });
 
         //텍스트 변환 읽기
@@ -117,7 +148,8 @@ public class GroupCreateActivity extends AppCompatActivity {
                         .putExtra("startDate",startDate)
                         .putExtra("endDate",endDate)
                         .putExtra("inviteCode",makeInviteCode())
-                        .putExtra("currentTime",currentTime));
+                        .putExtra("currentTime",currentTime)
+                        .putExtra("groupImage",photoUri.toString()));
                 finish();
             }
         });

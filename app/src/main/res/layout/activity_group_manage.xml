@@ -87,13 +87,14 @@
                 android:orientation="horizontal"
                 android:padding="12dp">
 
-                <ImageView
+                <com.google.android.material.imageview.ShapeableImageView
                     android:id="@+id/ivGroupImage"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
                     android:background="@drawable/bg_basic_group_image"
                     android:clipToOutline="true"
-                    android:scaleType="centerCrop" />
+                    android:scaleType="centerCrop"
+                    app:shapeAppearanceOverlay="@style/RoundedImage"/>
 
                 <LinearLayout
                     android:layout_width="0dp"

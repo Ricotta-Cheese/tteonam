@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    tools:context=".SignUpActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -12,72 +16,159 @@
         android:padding="24dp">
 
         <TextView
+            android:id="@+id/screen_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
             android:layout_marginBottom="24dp"
             android:text="@string/title_sign_up"
-            android:textSize="28sp" />
+            android:textAppearance="?attr/textAppearanceHeadlineMedium" />
 
-        <EditText
-            android:id="@+id/nickname_input"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/nickname_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
             android:hint="@string/hint_nickname"
-            android:inputType="textPersonName"
-            android:autofillHints="nickname"
-            android:singleLine="true" />
+            app:counterEnabled="true">
 
-        <EditText
-            android:id="@+id/email_input"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/nickname_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="nickname"
+                android:imeOptions="actionNext"
+                android:inputType="textPersonName"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/email_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:layout_marginTop="8dp"
             android:hint="@string/hint_email"
-            android:inputType="textEmailAddress"
-            android:autofillHints="emailAddress"
-            android:singleLine="true" />
+            app:helperText="@string/sign_up_email_helper"
+            app:helperTextEnabled="true">
 
-        <EditText
-            android:id="@+id/password_input"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/email_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="emailAddress"
+                android:imeOptions="actionNext"
+                android:inputType="textEmailAddress"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
-            android:hint="@string/hint_new_password"
-            android:inputType="textPassword"
-            android:autofillHints="newPassword"
-            android:saveEnabled="false"
-            android:singleLine="true" />
+            android:layout_marginTop="8dp"
+            android:hint="@string/hint_password"
+            app:endIconMode="password_toggle"
+            app:helperTextEnabled="true">
 
-        <EditText
-            android:id="@+id/confirm_input"
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="newPassword"
+                android:imeOptions="actionNext"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirm_layout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:layout_marginTop="8dp"
             android:hint="@string/hint_password_confirm"
-            android:inputType="textPassword"
-            android:autofillHints="newPassword"
-            android:saveEnabled="false"
-            android:singleLine="true" />
+            app:endIconMode="password_toggle"
+            app:helperTextEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/confirm_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autofillHints="newPassword"
+                android:imeOptions="actionDone"
+                android:inputType="textPassword"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/sign_up_notice" />
+            android:text="@string/terms_title"
+            android:textAppearance="?attr/textAppearanceTitleSmall" />
+
+        <CheckBox
+            android:id="@+id/terms_all_check"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/terms_all" />
+
+        <CheckBox
+            android:id="@+id/terms_service_check"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/terms_service" />
+
+        <CheckBox
+            android:id="@+id/terms_privacy_check"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/terms_privacy" />
+
+        <CheckBox
+            android:id="@+id/terms_location_check"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:text="@string/terms_location" />
+
+        <TextView
+            android:id="@+id/form_error_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:textColor="?attr/colorError"
+            android:visibility="gone"
+            tools:text="이미 가입된 이메일이에요."
+            tools:visibility="visible" />
 
         <Button
             android:id="@+id/sign_up_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="@string/action_check_input" />
+            android:enabled="false"
+            android:text="@string/action_sign_up" />
 
         <Button
-            android:id="@+id/back_to_login_button"
+            android:id="@+id/retry_profile_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/back_to_login" />
+            android:layout_marginTop="8dp"
+            android:text="@string/action_retry_profile"
+            android:visibility="gone" />
+
+        <ProgressBar
+            android:id="@+id/sign_up_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            android:indeterminate="true"
+            android:visibility="gone" />
+
     </LinearLayout>
 </ScrollView>

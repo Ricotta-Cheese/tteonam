@@ -3,6 +3,7 @@ package com.example.tteonam;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,6 +28,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.tteonam.databinding.ItemMemberBinding;
 
 import com.example.tteonam.databinding.ActivityGroupManageBinding;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -96,6 +100,7 @@ public class GroupManageActivity extends AppCompatActivity {
                     //초대 코드
                     inviteCode = data.getStringExtra("inviteCode");
                     binding.tvInviteCode.setText(inviteCode);
+                    makeQr();
 
                     //초대코드 시작시간
                     getStartTime = data.getLongExtra("currentTime",-1);
@@ -168,6 +173,21 @@ public class GroupManageActivity extends AppCompatActivity {
         fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
         if(expirationTime>currentTime) return fmt.format(new Date(expirationTime-currentTime));
         else return "코드 만료됨";
+    }
+
+    //qr코드 만들기
+    private void makeQr(){
+        if(inviteCode == null)  return;
+
+        try {
+            //바코드를 만들 인코더 생성
+            BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
+            //바코드를 bitmap으로 생성
+            Bitmap qr = barcodeEncoder.encodeBitmap(inviteCode, BarcodeFormat.QR_CODE, 400, 400);
+            binding.ivQr.setImageBitmap(qr);
+        } catch (WriterException e) {
+            Log.e("TN","QR 생성 실패", e);
+        }
     }
 
     //화면에 그룹이 있을 때 없을 때 구분하는 함수

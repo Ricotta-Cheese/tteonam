@@ -149,7 +149,7 @@ public class GroupCreateActivity extends AppCompatActivity {
                         .putExtra("endDate",endDate)
                         .putExtra("inviteCode",makeInviteCode())
                         .putExtra("currentTime",currentTime)
-                        .putExtra("groupImage",photoUri.toString()));
+                        .putExtra("groupImage",photoUri != null ? photoUri.toString() : null));
                 finish();
             }
         });

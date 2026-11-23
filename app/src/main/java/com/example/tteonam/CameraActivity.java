@@ -44,7 +44,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.room.Room;
 
+import com.example.tteonam.ShareActivity;
 import com.example.tteonam.databinding.ActivityCameraBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -109,11 +111,13 @@ public class CameraActivity extends AppCompatActivity {
 
     private ImageLabeler labeler;
 
-    // 회전 감지(<< CameraActivity만 회전)
+    // 회전 감지(CameraActivity만 회전)
     private OrientationEventListener orientationListener;
 
     // 촬영결과 + 파일저장 스레드
     private ExecutorService cameraExecutor;
+
+    private PhotoDB photoDB;
 
     private static final String[] REQUIRED_PERMISSIONS = {
             Manifest.permission.CAMERA,
@@ -161,7 +165,9 @@ public class CameraActivity extends AppCompatActivity {
 
         checkAndRequestPermissions();
 
-        initImageLabeler();
+        photoDB = PhotoDB.get(this);
+
+//        initImageLabeler();
 
         cameraExecutor = Executors.newSingleThreadExecutor();
 
@@ -395,7 +401,8 @@ public class CameraActivity extends AppCompatActivity {
         }
 
         // 휴대폰 갤러리에 넣지 않고 앱 전용 폴더에만 저장
-        String name = "IMG_" + System.currentTimeMillis() + ".jpg";
+        Long capturedAt = System.currentTimeMillis();
+        String name = "IMG_" + capturedAt + ".jpeg";
         File photoFile = new File(new File(getFilesDir(), PHOTO_DIR), name);
 
 //        OnImageSavedCallback / OnImageCapturedCallback 택 1 -> 전용폴더 -> OnImageCapturedCallback
@@ -420,7 +427,7 @@ public class CameraActivity extends AppCompatActivity {
                         }
 
                         // cameraExecutor 스레드 -> 화면 관련 작업은 메인 스레드로
-                        runOnUiThread(() -> onPhotoSaved(photoFile, rotation, shotLocation.get()));
+                        runOnUiThread(() -> onPhotoSaved(photoFile, capturedAt, rotation , shotLocation.get()));
                     }
                 });
     }
@@ -442,51 +449,29 @@ public class CameraActivity extends AppCompatActivity {
         }
     }
 
-    private void onPhotoSaved(File photoFile, int rotation, Location location) {
-        Uri savedUri = Uri.fromFile(photoFile);
-        String msg = (location != null)
-                ? "저장됨 (lat: " + location.getLatitude() + ", lng: " + location.getLongitude() + ")"
-                : "저장됨 (위치 정보 없음)";
-        Toast.makeText(CameraActivity.this, msg, Toast.LENGTH_SHORT).show();
-        Log.d(TAG, "저장 Uri: " + savedUri);
+    private void onPhotoSaved(File photoFile, long capturedAt, int rotation, Location location) {
+//        Uri savedUri = Uri.fromFile(photoFile);
 
-        saveToServer();
+        Photo photo = new Photo();
+        photo.path = photoFile.getPath();
+        photo.capturedAt = capturedAt;
+        photo.rotation = rotation;
+        photo.lat = (location != null) ? location.getLatitude() : null;
+        photo.lng = (location != null) ? location.getLongitude() : null;
+        photo.uploaded = false;
 
-        // fromFilePath
-        try{
-            InputImage inputImage = InputImage.fromFilePath(getApplicationContext(), savedUri);
-
-
-            labeler.process(inputImage)
-                    .addOnSuccessListener(labels->{
-                        for(ImageLabel label : labels){
-                            String text = label.getText();
-                            float confidence = label.getConfidence();
-                            int index = label.getIndex();
-
-                            Log.d(TAG,"label "+index+": "+confidence+", "+text);
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        Log.d(TAG,"labelling failed");
-                    });
-        }
-        catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        openShare(photoFile, rotation, location);
+        PhotoDB.dbExecutor.execute(() -> {
+            long id = photoDB.photoDao().insert(photo);
+            runOnUiThread(() -> openShare(id));
+        });
     }
 
-    // 사진 경로를 ShareActivity로
-    private void openShare(File photoFile, int rotation, Location location) {
+    // 사진 아이디를 ShareActivity로
+    private void openShare(long photoId) {
+        Log.d(TAG, "share act 실행");
+
         Intent intent = new Intent(CameraActivity.this, ShareActivity.class);
-        intent.putExtra(ShareActivity.EXTRA_PHOTO_PATH, photoFile.getAbsolutePath());
-        intent.putExtra(ShareActivity.EXTRA_ROTATION, rotation);
-        if (location != null) {
-            intent.putExtra(ShareActivity.EXTRA_LAT, location.getLatitude());
-            intent.putExtra(ShareActivity.EXTRA_LNG, location.getLongitude());
-        }
+        intent.putExtra(ShareActivity.EXTRA_PHOTO_ID, photoId);
         startActivity(intent);
     }
 
@@ -508,19 +493,14 @@ public class CameraActivity extends AppCompatActivity {
         bindCameraUseCases();
     }
 
-    // ───────────────────────── ML kit ─────────────────────────
-    private void initImageLabeler(){
-        // 신뢰도 0.7 이상인 경우만
-        ImageLabelerOptions options = new ImageLabelerOptions.Builder()
-                .setConfidenceThreshold(0.7f)
-                .build();
-
-        labeler = ImageLabeling.getClient(options);
-//        labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS);
-    }
-
-    // ───────────────────────── Firebase storage ─────────────────────────
-    private void saveToServer(){
-
-    }
+//    // ───────────────────────── ML kit ─────────────────────────
+//    private void initImageLabeler(){
+//        // 신뢰도 0.7 이상인 경우만
+//        ImageLabelerOptions options = new ImageLabelerOptions.Builder()
+//                .setConfidenceThreshold(0.7f)
+//                .build();
+//
+//        labeler = ImageLabeling.getClient(options);
+////        labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS);
+//    }
 }

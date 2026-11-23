@@ -7,11 +7,23 @@
     android:layout_height="match_parent"
     tools:context=".ShareActivity">
 
+    <ProgressBar
+        android:id="@+id/loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <LinearLayout
+        android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:gravity="center_horizontal">
+        android:gravity="center_horizontal"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/photoImage"
@@ -21,19 +33,78 @@
             android:scaleType="fitCenter"
             android:contentDescription="photo" />
 
+
         <TextView
-            android:id="@+id/infoText"
+            android:id="@+id/analysisText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
-            android:text="info" />
+            android:text="analysis" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/tagChips"
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" />
+
+        <TextView
+            android:id="@+id/commentInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Input Comment"/>
 
         <Button
-            android:id="@+id/backButton"
+            android:id="@+id/addTagButton"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Tag" />
+
+        <LinearLayout
+            android:id="@+id/fnButtons"
+            android:layout_width="match_parent"
             android:layout_height="80dp"
-            android:layout_marginTop="10dp"
-            android:text="Back" />
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Back" />
+
+            <Button
+                android:id="@+id/deletePhoto"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Delete"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/shareButtons"
+            android:layout_width="match_parent"
+            android:layout_height="80dp"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="10dp">
+
+            <Button
+                android:id="@+id/noShareButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="No Share" />
+
+            <Button
+                android:id="@+id/groupShareButton"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Group Share"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

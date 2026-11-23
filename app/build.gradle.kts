@@ -92,4 +92,16 @@ dependencies {
 
     // For @GlideModule
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+
+    // room
+    val room_version = "2.8.5"
+    implementation("androidx.room:room-runtime:$room_version")
+    annotationProcessor("androidx.room:room-compiler:$room_version")
+
+    // Declare the dependency for the Cloud Firestore library
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+    implementation("com.google.firebase:firebase-firestore")
+
+    implementation("com.firebaseui:firebase-ui-firestore:9.0.0")
+    implementation("androidx.paging:paging-runtime:3.5.3")
 }

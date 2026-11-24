@@ -272,7 +272,7 @@ public final class TripRepository {
         CurrentTripStore store = store(user.getUid());
         String code = store.getInviteCode(tripId);
         long expiresAt = store.getInviteExpiresAt(tripId);
-        if (code == null || expiresAt <= ServerClock.now()) return null;
+        if (!InviteCodes.isValid(code) || expiresAt <= ServerClock.now()) return null;
         return new Invite(code, expiresAt);
     }
 

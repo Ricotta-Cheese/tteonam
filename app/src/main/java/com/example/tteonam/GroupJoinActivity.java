@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
@@ -33,7 +34,7 @@ import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 
 import java.util.Collections;
 
-// 초대 QR을 스캔하거나 6자리 숫자 코드를 입력해 joinTrip을 호출한다.
+// 초대 QR을 스캔하거나 6자리 영숫자 코드를 입력해 joinTrip을 호출한다.
 public class GroupJoinActivity extends AuthenticatedActivity {
     private ActivityGroupJoinBinding binding;
     private EditText[] boxes;
@@ -89,6 +90,8 @@ public class GroupJoinActivity extends AuthenticatedActivity {
 
         for (int i = 0; i < boxes.length; i++) {
             final int index = i;
+            boxes[i].setFilters(new InputFilter[]{
+                    new InputFilter.AllCaps(), new InputFilter.LengthFilter(1)});
             boxes[i].addTextChangedListener(new TextWatcher() {
                 @Override
                 public void afterTextChanged(Editable editable) {

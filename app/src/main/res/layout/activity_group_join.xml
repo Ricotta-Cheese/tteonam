@@ -117,37 +117,37 @@
         <EditText
             android:id="@+id/etCode1"
             android:maxLength="1"
-            android:inputType="number"
+            android:inputType="textCapCharacters|textNoSuggestions"
             style="@style/CodeBox" />
 
         <EditText
             android:id="@+id/etCode2"
             android:maxLength="1"
-            android:inputType="number"
+            android:inputType="textCapCharacters|textNoSuggestions"
             style="@style/CodeBox" />
 
         <EditText
             android:id="@+id/etCode3"
             android:maxLength="1"
-            android:inputType="number"
+            android:inputType="textCapCharacters|textNoSuggestions"
             style="@style/CodeBox" />
 
         <EditText
             android:id="@+id/etCode4"
             android:maxLength="1"
-            android:inputType="number"
+            android:inputType="textCapCharacters|textNoSuggestions"
             style="@style/CodeBox" />
 
         <EditText
             android:id="@+id/etCode5"
             android:maxLength="1"
-            android:inputType="number"
+            android:inputType="textCapCharacters|textNoSuggestions"
             style="@style/CodeBox" />
 
         <EditText
             android:id="@+id/etCode6"
             android:maxLength="1"
-            android:inputType="number"
+            android:inputType="textCapCharacters|textNoSuggestions"
             style="@style/CodeBox"
             android:layout_marginEnd="0dp" />
     </LinearLayout>
@@ -157,7 +157,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
-        android:text="6자리 코드는 그룹 관리 화면에서 확인할 수 있어요"
+        android:text="6자리 영문·숫자 코드 (O, 0, I, 1 제외)"
         android:textColor="#9A8F85"
         android:textSize="10sp" />
 

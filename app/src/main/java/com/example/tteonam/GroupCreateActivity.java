@@ -1,0 +1,177 @@
+package com.example.tteonam;
+
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.PickVisualMediaRequest;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.util.Pair;
+
+import com.example.tteonam.databinding.ActivityGroupCreateBinding;
+import com.google.android.material.datepicker.CalendarConstraints;
+import com.google.android.material.datepicker.DateValidatorPointForward;
+import com.google.android.material.datepicker.MaterialDatePicker;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Random;
+import java.util.TimeZone;
+
+public class GroupCreateActivity extends AppCompatActivity {
+    ActivityGroupCreateBinding binding;
+    private long startDate;
+    private long endDate;
+    private long currentTime;
+    private String inviteCode;
+    private Uri photoUri;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        WindowCompat.enableEdgeToEdge(getWindow());
+
+        binding = ActivityGroupCreateBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        //사진 고르기 런처 등록
+        ActivityResultLauncher<PickVisualMediaRequest> photoLauncher =
+                registerForActivityResult(new ActivityResultContracts.PickVisualMedia(), uri -> {
+                    //잠금 이미지선택 layout을 품
+                    binding.imageArea.setEnabled(true);
+                    //사용자가 안 고르고 뒤로 나가면 null
+                    if (uri == null) return;
+
+                    photoUri = uri;                        //완료 버튼에서 넘기려고 저장
+                    binding.ivGroupImage.setImageURI(uri);      //미리보기
+                    binding.tvAttach.setVisibility(View.GONE);
+
+                });
+
+        //back버튼
+        binding.btnBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
+        //사진 첨부 영역 누르면 사진 선택기 띄우기
+        binding.imageArea.setOnClickListener(view -> {
+            //한번만 실행하도록 layout 잠금
+            binding.imageArea.setEnabled(false);
+
+            photoLauncher.launch(new PickVisualMediaRequest.Builder()
+                    .setMediaType(ActivityResultContracts.PickVisualMedia.ImageOnly.INSTANCE)
+                    .build());
+
+        });
+
+        //텍스트 변환 읽기
+        binding.etTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void afterTextChanged(Editable editable) {
+                binding.btnDone.setEnabled(isDone());
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+        });
+
+        //기간선택
+        binding.layoutDateRange.setOnClickListener(view->{
+            //두번 뜨는걸 방지
+            binding.layoutDateRange.setEnabled(false);
+
+            //오늘 이전 날짜는 선택 못 하게 막는 제약 조건 검사기 생성
+            CalendarConstraints constraints = new CalendarConstraints.Builder()
+                    .setValidator(DateValidatorPointForward.now())
+                    .build();
+
+            MaterialDatePicker<Pair<Long,Long>> picker = MaterialDatePicker.Builder.dateRangePicker()
+                    .setTitleText("여행기간 선택")
+                    .setCalendarConstraints(constraints)
+                    .build();
+
+            picker.addOnPositiveButtonClickListener(selection ->{
+                startDate = selection.first;
+                endDate = selection.second;
+
+                SimpleDateFormat fmt = new SimpleDateFormat("yyyy.MM.dd.", Locale.KOREA);
+                fmt.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+                binding.tvStartDate.setText(fmt.format(new Date(startDate)));
+                binding.tvEndDate.setText(fmt.format(new Date(endDate)));
+
+                binding.btnDone.setEnabled(isDone());
+            });
+
+            //달력이 닫힐 때 잠금 풀어줌
+            picker.addOnDismissListener(dialogInterface -> {
+                binding.layoutDateRange.setEnabled(true);
+            });
+
+            picker.show(getSupportFragmentManager(), "DATE_PICKER");
+        });
+
+        //done버튼
+        binding.btnDone.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                setResult(RESULT_OK, new Intent()
+                        .putExtra("groupName",binding.etTitle.getText().toString())
+                        .putExtra("startDate",startDate)
+                        .putExtra("endDate",endDate)
+                        .putExtra("inviteCode",makeInviteCode())
+                        .putExtra("currentTime",currentTime)
+                        .putExtra("groupImage",photoUri != null ? photoUri.toString() : null));
+                finish();
+            }
+        });
+    }
+
+    private boolean isDone() {
+        boolean isDoneText = !binding.etTitle.getText().toString().trim().isEmpty();
+        return (startDate!=0 && isDoneText);
+    }
+
+    private String makeInviteCode() {
+        String alpha = "23456789ABCDEFGHJKLMNPQRSTUVWXYZ";
+        Random random = new Random();
+        StringBuilder sb = new StringBuilder();
+
+        for(int i=0; i<6; i++) {
+            sb.append(alpha.charAt(random.nextInt(alpha.length())));
+        }
+        inviteCode = sb.toString();
+
+        currentTime = System.currentTimeMillis();
+
+        return inviteCode;
+    }
+}

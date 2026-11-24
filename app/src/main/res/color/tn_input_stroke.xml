@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 입력칸 테두리: 입력 중이면 진한 색, 평소엔 연한 색 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/tn_ink" android:state_focused="true" />
+    <item android:color="@color/tn_outline" />
+</selector>

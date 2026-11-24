@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 로그인 콜라주: 노을 사진 카드 (96 x 122dp 기준). 노을 하늘 / 저녁 바다 -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape><solid android:color="@color/white" /><corners android:radius="12dp" /></shape>
+    </item>
+    <item android:left="4dp" android:right="4dp" android:top="4dp" android:bottom="4dp">
+        <shape>
+            <solid android:color="@color/photo_night_sea" />
+            <corners android:radius="9dp" />
+        </shape>
+    </item>
+    <item android:left="4dp" android:right="4dp" android:top="4dp" android:bottom="56dp">
+        <shape>
+            <gradient android:angle="270" android:startColor="@color/photo_sunset_top" android:endColor="@color/photo_sunset_mid" />
+            <corners android:topLeftRadius="9dp" android:topRightRadius="9dp" />
+        </shape>
+    </item>
+</layer-list>

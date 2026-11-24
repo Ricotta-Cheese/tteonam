@@ -1,8 +1,31 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.Tteonam" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <!--
+        앱 공통 테마. 기획서 시안이 밝은 화면 하나뿐이라 다크 모드에서도 같은 밝은 테마를 쓴다.
+        여기서 색을 정해 두면 버튼·체크박스·입력칸이 자동으로 같은 색을 따른다.
+    -->
+    <style name="Base.Theme.Tteonam" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/tn_primary</item>
+        <item name="colorOnPrimary">@color/tn_on_primary</item>
+        <item name="colorSecondary">@color/tn_ink</item>
+        <item name="colorOnSecondary">@color/tn_on_ink</item>
+        <item name="colorError">@color/tn_error</item>
+        <item name="colorSurface">@color/tn_surface</item>
+        <item name="colorOnSurface">@color/tn_text</item>
+        <item name="colorOnSurfaceVariant">@color/tn_text_secondary</item>
+        <item name="colorOutline">@color/tn_outline</item>
+        <item name="android:colorBackground">@color/tn_background</item>
+        <item name="android:windowBackground">@color/tn_background</item>
+        <item name="android:textColorPrimary">@color/tn_text</item>
+        <item name="android:textColorSecondary">@color/tn_text_secondary</item>
+        <item name="android:textColorHint">@color/tn_text_hint</item>
+
+        <!-- 밝은 배경이므로 상태 표시줄·내비게이션 바 아이콘을 어둡게 -->
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">true</item>
+
+        <!-- 위젯 기본 스타일 -->
+        <item name="textInputStyle">@style/Widget.Tteonam.TextInput</item>
+        <item name="materialButtonStyle">@style/Widget.Tteonam.Button.Primary</item>
     </style>
 
     <style name="Theme.Tteonam" parent="Base.Theme.Tteonam" />

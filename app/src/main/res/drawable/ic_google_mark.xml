@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Google로 계속하기" 버튼의 4색 원 표시 (기획서 시안의 단순화된 표시를 따름) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path android:fillColor="#EA4335" android:pathData="M12,12L12,2A10,10 0,0 0,2 12Z" />
+    <path android:fillColor="#FBBC05" android:pathData="M12,12L2,12A10,10 0,0 0,12 22Z" />
+    <path android:fillColor="#34A853" android:pathData="M12,12L12,22A10,10 0,0 0,22 12Z" />
+    <path android:fillColor="#4285F4" android:pathData="M12,12L22,12A10,10 0,0 0,12 2Z" />
+</vector>

@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 떠남 색상 팔레트 (기획서 시안 기준). 화면에서는 이 이름만 사용한다. -->
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+
+    <!-- 배경·표면 -->
+    <color name="tn_background">#F4F0EA</color>   <!-- 따뜻한 크림색 화면 배경 -->
+    <color name="tn_surface">#FCFAF6</color>      <!-- 입력칸·카드 -->
+    <color name="tn_outline">#DED7CC</color>      <!-- 평상시 테두리 -->
+    <color name="tn_divider">#E7E1D8</color>
+
+    <!-- 포인트 -->
+    <color name="tn_primary">#E2603D</color>      <!-- 주황: 주요 버튼, 강조 링크 -->
+    <color name="tn_on_primary">#FFFFFF</color>
+    <color name="tn_ink">#1F2B27</color>          <!-- 짙은 녹색 계열 검정: 제목, 통계 카드 -->
+    <color name="tn_on_ink">#F4F0EA</color>
+
+    <!-- 글자 -->
+    <color name="tn_text">#1F2B27</color>
+    <color name="tn_text_secondary">#8A837A</color>
+    <color name="tn_text_hint">#B3ACA2</color>
+
+    <!-- 상태 -->
+    <color name="tn_success">#3E8D60</color>
+    <color name="tn_error">#C9472C</color>
+
+    <!-- 로그인 화면 사진 카드 그림 -->
+    <color name="photo_sky_top">#B5DFEF</color>
+    <color name="photo_sky_bottom">#7FC4DD</color>
+    <color name="photo_sea">#2D8FAE</color>
+    <color name="photo_sand">#E9DDC3</color>
+    <color name="photo_forest_light">#93BF6F</color>
+    <color name="photo_forest_dark">#3D6B3B</color>
+    <color name="photo_sunset_top">#F7C07A</color>
+    <color name="photo_sunset_mid">#EC7442</color>
+    <color name="photo_night_sea">#2C4664</color>
 </resources>

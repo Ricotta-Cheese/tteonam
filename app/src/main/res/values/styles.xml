@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 화면들이 함께 쓰는 글자·버튼·입력칸·카드 스타일 -->
+<resources>
+
+    <!-- ===== 글자 ===== -->
+    <!-- 화면 큰 제목 (예: "여행의 순간을 함께 기록해요") -->
+    <style name="TextAppearance.Tteonam.Display" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:textSize">26sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/tn_text</item>
+        <item name="android:lineSpacingMultiplier">1.15</item>
+    </style>
+
+    <!-- 섹션 제목 (예: "우리의 최근 순간") -->
+    <style name="TextAppearance.Tteonam.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/tn_text</item>
+    </style>
+
+    <!-- 입력칸 위 라벨 (예: "닉네임") -->
+    <style name="TextAppearance.Tteonam.Label" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/tn_text</item>
+    </style>
+
+    <style name="TextAppearance.Tteonam.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/tn_text</item>
+    </style>
+
+    <!-- 보조 설명 (회색 작은 글씨) -->
+    <style name="TextAppearance.Tteonam.Caption" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/tn_text_secondary</item>
+    </style>
+
+    <!-- ===== 입력칸 ===== -->
+    <!-- 둥근 모서리 + 밝은 바탕 + 입력 중 진한 테두리 -->
+    <style name="Widget.Tteonam.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxBackgroundColor">@color/tn_surface</item>
+        <item name="boxStrokeColor">@color/tn_input_stroke</item>
+        <item name="boxStrokeWidth">1dp</item>
+        <item name="boxStrokeWidthFocused">1.5dp</item>
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="startIconTint">@color/tn_text_secondary</item>
+        <item name="endIconTint">@color/tn_text_secondary</item>
+        <item name="placeholderTextColor">@color/tn_text_hint</item>
+        <item name="helperTextTextColor">@color/tn_text_secondary</item>
+    </style>
+
+    <!-- 라벨을 입력칸 위에 따로 두는 화면용: 떠오르는 힌트를 끄고 placeholder만 쓴다 -->
+    <style name="Widget.Tteonam.TextInput.NoHint">
+        <item name="hintEnabled">false</item>
+    </style>
+
+    <!-- ===== 버튼 ===== -->
+    <!-- 주황색 큰 버튼 (로그인, 가입하기) -->
+    <style name="Widget.Tteonam.Button.Primary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/tn_primary_button_bg</item>
+        <item name="android:textColor">@color/tn_on_primary</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- 테두리만 있는 밝은 버튼 (Google로 계속하기) -->
+    <style name="Widget.Tteonam.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="backgroundTint">@color/tn_surface</item>
+        <item name="strokeColor">@color/tn_outline</item>
+        <item name="android:textColor">@color/tn_text</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="cornerRadius">14dp</item>
+        <item name="iconTint">@null</item>
+        <item name="iconGravity">textStart</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- 글자만 있는 작은 버튼 (비밀번호를 잊으셨나요?, 로그아웃) -->
+    <style name="Widget.Tteonam.Button.Text" parent="Widget.Material3.Button.TextButton">
+        <item name="android:textColor">@color/tn_text_secondary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:minHeight">40dp</item>
+    </style>
+
+    <!-- 둥근 아이콘 버튼 (상단 바) -->
+    <style name="Widget.Tteonam.IconButton" parent="">
+        <item name="android:layout_width">44dp</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:padding">10dp</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="tint">@color/tn_text</item>
+    </style>
+
+    <!-- ===== 하단 탭 ===== -->
+    <style name="Widget.Tteonam.NavItem" parent="">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">?attr/selectableItemBackgroundBorderless</item>
+    </style>
+
+    <style name="Widget.Tteonam.NavIcon" parent="">
+        <item name="android:layout_width">24dp</item>
+        <item name="android:layout_height">24dp</item>
+        <item name="android:duplicateParentState">true</item>
+        <item name="tint">@color/tn_nav_item</item>
+    </style>
+
+    <style name="Widget.Tteonam.NavLabel" parent="">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">2dp</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:duplicateParentState">true</item>
+        <item name="android:textColor">@color/tn_nav_item</item>
+    </style>
+</resources>

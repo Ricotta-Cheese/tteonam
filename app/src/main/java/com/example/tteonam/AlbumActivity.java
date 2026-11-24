@@ -2,17 +2,17 @@ package com.example.tteonam;
 
 import android.os.Bundle;
 
-import androidx.appcompat.app.AppCompatActivity;
+import com.example.tteonam.auth.AuthenticatedActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class AlbumActivity extends AppCompatActivity {
-
+public class AlbumActivity extends AuthenticatedActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         WindowCompat.enableEdgeToEdge(getWindow());
         setContentView(R.layout.activity_album);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

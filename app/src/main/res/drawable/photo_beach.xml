@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 로그인 콜라주: 바다 사진 카드 (96 x 122dp 기준). 하늘 / 바다 / 모래 띠로 그린다. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape><solid android:color="@color/white" /><corners android:radius="12dp" /></shape>
+    </item>
+    <item android:left="4dp" android:right="4dp" android:top="4dp" android:bottom="4dp">
+        <shape>
+            <gradient android:angle="270" android:startColor="@color/photo_sky_top" android:endColor="@color/photo_sky_bottom" />
+            <corners android:radius="9dp" />
+        </shape>
+    </item>
+    <item android:left="4dp" android:right="4dp" android:top="54dp" android:bottom="40dp">
+        <shape><solid android:color="@color/photo_sea" /></shape>
+    </item>
+    <item android:left="4dp" android:right="4dp" android:top="82dp" android:bottom="4dp">
+        <shape>
+            <solid android:color="@color/photo_sand" />
+            <corners android:bottomLeftRadius="9dp" android:bottomRightRadius="9dp" />
+        </shape>
+    </item>
+</layer-list>

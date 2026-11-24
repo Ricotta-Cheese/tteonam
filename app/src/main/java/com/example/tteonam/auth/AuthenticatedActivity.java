@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tteonam.LoginActivity;
 import com.example.tteonam.data.FirebaseProvider;
+import com.example.tteonam.data.ServerClock;
 import com.example.tteonam.util.TnLog;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -32,6 +33,8 @@ public abstract class AuthenticatedActivity extends AppCompatActivity {
                 + (savedInstanceState != null ? " (복원)" : ""));
         if (auth.getCurrentUser() == null) {
             goToLogin();
+        } else {
+            ServerClock.syncInBackground(auth);
         }
     }
 

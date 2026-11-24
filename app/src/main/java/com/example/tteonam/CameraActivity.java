@@ -34,6 +34,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.tteonam.auth.AuthenticatedActivity;
+import com.example.tteonam.data.ServerClock;
 import com.example.tteonam.databinding.ActivityCameraBinding;
 import com.example.tteonam.util.TnLog;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -405,7 +406,7 @@ public class CameraActivity extends AuthenticatedActivity {
         }
 
         // 휴대폰 갤러리에 넣지 않고 앱 전용 폴더에만 저장
-        long capturedAt = System.currentTimeMillis();
+        long capturedAt = ServerClock.now();   // 기기 시계가 틀려도 서버 시각 기준으로 기록
         String name = "IMG_" + capturedAt + ".jpeg";
         File photoFile = new File(new File(getFilesDir(), PHOTO_DIR), name);
 

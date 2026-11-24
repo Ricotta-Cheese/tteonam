@@ -44,7 +44,8 @@ public final class FirebaseProvider {
 
     private FirebaseProvider(@NonNull Context appContext) {
         FirebaseApp app;
-        // debug는 demo-tteonam, release는 실제 프로젝트 설정을 사용한다.
+        // 기본은 실제 클라우드(tteonam). local.properties에 tteonam.firebase=emulator를 넣은
+        // 디버그 빌드만 로컬 에뮬레이터(demo-tteonam)를 쓴다. (app/build.gradle.kts 참고)
         if (BuildConfig.USE_FIREBASE_EMULATOR) {
             app = createEmulatorApp(appContext);
         } else {
@@ -86,15 +87,27 @@ public final class FirebaseProvider {
         return FirebaseApp.initializeApp(appContext, options, LOCAL_APP_NAME);
     }
 
+    // app/google-services.json의 값을 빌드 시점에 BuildConfig로 받아 기본 FirebaseApp을 만든다.
     @NonNull
     private static FirebaseApp getCloudApp(@NonNull Context appContext) {
-        FirebaseApp app = FirebaseApp.initializeApp(appContext);
-        if (app == null) {
-            throw new IllegalStateException(
-                    "실제 Firebase 설정이 없습니다. Firebase에 Android 앱을 등록하고 "
-                            + "app/google-services.json 과 Google Services 플러그인을 연결하세요.");
+        for (FirebaseApp existing : FirebaseApp.getApps(appContext)) {
+            if (FirebaseApp.DEFAULT_APP_NAME.equals(existing.getName())) {
+                return existing;
+            }
         }
-        return app;
+        if (BuildConfig.FIREBASE_PROJECT_ID.isEmpty() || BuildConfig.FIREBASE_APP_ID.isEmpty()
+                || BuildConfig.FIREBASE_API_KEY.isEmpty()) {
+            throw new IllegalStateException(
+                    "실제 Firebase 설정이 없습니다. app/google-services.json을 확인하세요.");
+        }
+        FirebaseOptions options = new FirebaseOptions.Builder()
+                .setProjectId(BuildConfig.FIREBASE_PROJECT_ID)
+                .setApplicationId(BuildConfig.FIREBASE_APP_ID)
+                .setApiKey(BuildConfig.FIREBASE_API_KEY)
+                .setStorageBucket(BuildConfig.FIREBASE_STORAGE_BUCKET)
+                .setGcmSenderId(BuildConfig.FIREBASE_GCM_SENDER_ID)
+                .build();
+        return FirebaseApp.initializeApp(appContext, options);
     }
 
     @NonNull

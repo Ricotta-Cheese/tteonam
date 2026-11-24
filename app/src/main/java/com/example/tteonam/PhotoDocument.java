@@ -3,6 +3,7 @@ package com.example.tteonam;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.tteonam.data.ServerClock;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
@@ -164,9 +165,9 @@ public final class PhotoDocument {
 
         public Builder visibility(String visibility) { this.visibility = visibility; return this; }
 
-        // 기기 시계가 서버보다 빠르면 규칙(capturedAt <= request.time)에 걸리므로 현재 시각을 넘지 않게 한다.
+        // 규칙(capturedAt <= request.time)에 걸리지 않도록 서버 기준 현재 시각을 넘지 않게 한다.
         public Builder capturedAt(long millis) {
-            long safe = Math.min(millis, System.currentTimeMillis());
+            long safe = Math.min(millis, ServerClock.now());
             this.capturedAt = new Timestamp(new Date(safe));
             return this;
         }

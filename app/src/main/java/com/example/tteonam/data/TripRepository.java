@@ -107,11 +107,13 @@ public final class TripRepository {
     }
 
     @NonNull
-    private String requireUid() throws BackendErrors.UserFacingException {
+    private String requireUid() throws Exception {
         FirebaseUser user = provider.getAuth().getCurrentUser();
         if (user == null) {
             throw new BackendErrors.UserFacingException("로그인이 필요해요. 다시 로그인해 주세요.");
         }
+        // 기기 시계가 틀려 만료된 토큰을 보내지 않도록 서버 시각 기준으로 확인
+        ServerClock.ensureFreshToken(provider.getAuth());
         return user.getUid();
     }
 
@@ -270,7 +272,7 @@ public final class TripRepository {
         CurrentTripStore store = store(user.getUid());
         String code = store.getInviteCode(tripId);
         long expiresAt = store.getInviteExpiresAt(tripId);
-        if (code == null || expiresAt <= System.currentTimeMillis()) return null;
+        if (code == null || expiresAt <= ServerClock.now()) return null;
         return new Invite(code, expiresAt);
     }
 

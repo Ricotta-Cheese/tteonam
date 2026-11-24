@@ -63,6 +63,7 @@ public final class PhotoUploader {
                 throw new BackendErrors.UserFacingException("로그인이 필요해요. 다시 로그인해 주세요.");
             }
             String uid = user.getUid();
+            ServerClock.ensureFreshToken(provider.getAuth());
 
             Photo photo = dao.findById(localPhotoId);
             TnLog.i(TnLog.UPLOAD, "업로드 시작: local=" + localPhotoId + ", visibility=" + visibility

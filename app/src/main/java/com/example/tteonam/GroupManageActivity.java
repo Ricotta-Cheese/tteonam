@@ -28,6 +28,7 @@ import com.example.tteonam.data.BackendErrors;
 import com.example.tteonam.data.FirebaseProvider;
 import com.example.tteonam.data.InviteCodes;
 import com.example.tteonam.data.JpegEncoder;
+import com.example.tteonam.data.ServerClock;
 import com.example.tteonam.data.TripRepository;
 import com.example.tteonam.databinding.ActivityGroupManageBinding;
 import com.example.tteonam.databinding.ItemMemberBinding;
@@ -108,7 +109,7 @@ public class GroupManageActivity extends AuthenticatedActivity {
 
         // 코드가 없거나 만료됐으면 눌러서 새로 발급
         View.OnClickListener issue = view -> {
-            if (invite == null || invite.expiresAt <= System.currentTimeMillis()) issueInvite();
+            if (invite == null || invite.expiresAt <= ServerClock.now()) issueInvite();
         };
         binding.tvInviteCode.setOnClickListener(issue);
         binding.ivQr.setOnClickListener(issue);
@@ -207,7 +208,7 @@ public class GroupManageActivity extends AuthenticatedActivity {
                 invite = task.getResult();
                 // 초대 코드 원문은 남기지 않는다(로그가 공유되면 누구나 참여할 수 있음).
                 TnLog.i(TnLog.GROUP, "초대 코드 발급됨, 만료까지 "
-                        + InviteCodes.remainingText(invite.expiresAt, System.currentTimeMillis()));
+                        + InviteCodes.remainingText(invite.expiresAt, ServerClock.now()));
             } else {
                 Toast.makeText(this, BackendErrors.message(task.getException()), Toast.LENGTH_LONG).show();
             }
@@ -251,7 +252,7 @@ public class GroupManageActivity extends AuthenticatedActivity {
 
     private void renderInvite() {
         if (binding == null || trip == null) return;
-        long now = System.currentTimeMillis();
+        long now = ServerClock.now();   // 초대 만료 시각은 서버 시계 기준
         if (invite == null || invite.expiresAt <= now) {
             if (!issuingInvite) binding.tvInviteCode.setText("코드 발급");
             binding.expirationDate.setText(invite == null

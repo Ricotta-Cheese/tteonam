@@ -1,7 +1,6 @@
 package com.example.tteonam.auth;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,13 +8,11 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.tteonam.BuildConfig;
 import com.example.tteonam.data.AuthRepository;
+import com.example.tteonam.util.TnLog;
 import com.google.firebase.auth.FirebaseUser;
 
 public class SignUpViewModel extends AndroidViewModel {
-    private static final String TAG = "SignUpViewModel";
-
     public enum Status {
         IDLE,
         CREATING_ACCOUNT,
@@ -73,6 +70,7 @@ public class SignUpViewModel extends AndroidViewModel {
                 AuthValidator.validatePasswordConfirm(password, confirm),
                 termsAccepted ? null : "필수 약관에 모두 동의해 주세요.");
         if (error != null) {
+            TnLog.d(TnLog.AUTH, "회원가입 입력 오류: " + error);
             state.setValue(new UiState(Status.IDLE, error, null));
             return;
         }
@@ -88,6 +86,7 @@ public class SignUpViewModel extends AndroidViewModel {
             }
 
             pendingUid = task.getResult().getUser().getUid();
+            TnLog.i(TnLog.AUTH, "계정 생성 성공: uid=" + TnLog.shortId(pendingUid));
             pendingNickname = nickname;
             pendingEmail = email;
             saveProfile();
@@ -115,6 +114,7 @@ public class SignUpViewModel extends AndroidViewModel {
             if (task.isSuccessful()) {
                 // TODO: 로그아웃 전 현재 UID를 재확인한다.
                 // 가입 시 생성된 세션을 종료하고 로그인 화면으로 돌아간다.
+                TnLog.i(TnLog.AUTH, "회원가입 완료(프로필 저장) → 로그인 화면으로");
                 repository.signOut();
                 String email = pendingEmail;
                 clearPending();
@@ -134,6 +134,7 @@ public class SignUpViewModel extends AndroidViewModel {
     protected void onCleared() {
         FirebaseUser user = repository.getCurrentUser();
         if (pendingUid != null && user != null && pendingUid.equals(user.getUid())) {
+            TnLog.w(TnLog.AUTH, "가입 화면 종료: 프로필 저장 전 계정 로그아웃");
             repository.signOut();
         }
     }
@@ -154,10 +155,9 @@ public class SignUpViewModel extends AndroidViewModel {
         return null;
     }
 
+    // 인증 오류 상세는 개발 빌드에서만 남긴다.
     private static void logDebug(String message, @Nullable Exception error) {
-        if (BuildConfig.DEBUG) {
-            Log.w(TAG, message, error);
-        }
+        TnLog.d(TnLog.AUTH, message, error);
     }
 
     @NonNull

@@ -24,6 +24,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.tteonam.auth.LoginViewModel;
+import com.example.tteonam.util.TnLog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -54,9 +55,11 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        TnLog.i(TnLog.SCREEN, "LoginActivity 열림");
         viewModel = new ViewModelProvider(this).get(LoginViewModel.class);
 
         if (viewModel.isAlreadySignedIn()) {
+            TnLog.i(TnLog.AUTH, "이미 로그인됨 → 홈");
             goToHome();
             return;
         }
@@ -166,6 +169,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void goToHome() {
+        TnLog.i(TnLog.SCREEN, "LoginActivity → MainActivity");
         Intent intent = new Intent(this, MainActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);

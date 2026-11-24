@@ -5,10 +5,12 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.example.tteonam.BuildConfig;
+import com.example.tteonam.util.TnLog;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.storage.FirebaseStorage;
 
 public final class FirebaseProvider {
@@ -18,8 +20,11 @@ public final class FirebaseProvider {
 
     private static final int AUTH_EMULATOR_PORT = 9099;
     private static final int FIRESTORE_EMULATOR_PORT = 8080;
-    // merge-test(박이든): 사진 업로드용 Storage 추가. 로컬 버킷·포트는 Firebase API 문서 기준
+    private static final int FUNCTIONS_EMULATOR_PORT = 5001;
     private static final int STORAGE_EMULATOR_PORT = 9199;
+
+    // 서버 함수는 모두 us-west1에 배포돼 있다(FirebaseControl/docs/backend.md).
+    public static final String FUNCTIONS_REGION = "us-west1";
     private static final String LOCAL_STORAGE_BUCKET = "demo-tteonam.appspot.com";
 
     private static FirebaseProvider instance;
@@ -27,6 +32,7 @@ public final class FirebaseProvider {
     private final FirebaseAuth auth;
     private final FirebaseFirestore firestore;
     private final FirebaseStorage storage;
+    private final FirebaseFunctions functions;
 
     @NonNull
     public static synchronized FirebaseProvider get(@NonNull Context context) {
@@ -48,12 +54,19 @@ public final class FirebaseProvider {
         auth = FirebaseAuth.getInstance(app);
         firestore = FirebaseFirestore.getInstance(app);
         storage = FirebaseStorage.getInstance(app);
+        functions = FirebaseFunctions.getInstance(app, FUNCTIONS_REGION);
 
         if (BuildConfig.USE_FIREBASE_EMULATOR) {
             String host = BuildConfig.FIREBASE_EMULATOR_HOST;
             auth.useEmulator(host, AUTH_EMULATOR_PORT);
             firestore.useEmulator(host, FIRESTORE_EMULATOR_PORT);
             storage.useEmulator(host, STORAGE_EMULATOR_PORT);
+            functions.useEmulator(host, FUNCTIONS_EMULATOR_PORT);
+            TnLog.i(TnLog.APP, "Firebase 에뮬레이터 연결: " + host
+                    + " (auth " + AUTH_EMULATOR_PORT + ", firestore " + FIRESTORE_EMULATOR_PORT
+                    + ", storage " + STORAGE_EMULATOR_PORT + ", functions " + FUNCTIONS_EMULATOR_PORT + ")");
+        } else {
+            TnLog.i(TnLog.APP, "Firebase 클라우드 프로젝트 사용: " + app.getOptions().getProjectId());
         }
     }
 
@@ -97,5 +110,10 @@ public final class FirebaseProvider {
     @NonNull
     public FirebaseStorage getStorage() {
         return storage;
+    }
+
+    @NonNull
+    public FirebaseFunctions getFunctions() {
+        return functions;
     }
 }

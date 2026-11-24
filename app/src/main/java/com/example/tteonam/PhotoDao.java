@@ -7,9 +7,7 @@ import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Update;
 
-
 import java.util.List;
-
 
 @Dao
 public interface PhotoDao {
@@ -38,10 +36,13 @@ public interface PhotoDao {
     @Query("UPDATE photos SET lat = :lat, lng = :lng WHERE id = :id")
     void updateLocation(long id, double lat, double lng);
 
-    // 업로드를 처음 시작할 때 정한 서버 id 저장 (재시도 때 같은 문서를 다시 쓰기 위해)
-    @Query("UPDATE photos SET serverPhotoId = :serverPhotoId WHERE id = :id")
-    void updateServerPhotoId(long id, String serverPhotoId);
+    // 업로드를 처음 시작할 때 정한 여행·서버 id 저장 (재시도 때 같은 문서·경로를 다시 쓰기 위해)
+    @Query("UPDATE photos SET tripId = :tripId, serverPhotoId = :serverPhotoId WHERE id = :id")
+    void assignServerIds(long id, String tripId, String serverPhotoId);
 
-    @Query("UPDATE photos SET uploaded = 1 WHERE id = :id")
-    void markUploaded(long id);
+    @Query("UPDATE photos SET docCreated = 1 WHERE id = :id")
+    void markDocCreated(long id);
+
+    @Query("DELETE FROM photos WHERE id = :id")
+    void deleteById(long id);
 }

@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.tteonam.auth.AuthValidator;
 import com.example.tteonam.auth.SignUpViewModel;
+import com.example.tteonam.util.TnLog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -51,6 +52,7 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        TnLog.i(TnLog.SCREEN, "SignUpActivity 열림");
         WindowCompat.enableEdgeToEdge(getWindow());
         setContentView(R.layout.activity_sign_up);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {

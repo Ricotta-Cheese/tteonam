@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.tteonam.LoginActivity;
 import com.example.tteonam.data.FirebaseProvider;
+import com.example.tteonam.util.TnLog;
 import com.google.firebase.auth.FirebaseAuth;
 
 public abstract class AuthenticatedActivity extends AppCompatActivity {
@@ -18,6 +19,7 @@ public abstract class AuthenticatedActivity extends AppCompatActivity {
     // 로컬 세션 감시. 서버 계정 상태의 즉시 검증은 포함하지 않는다.
     private final FirebaseAuth.AuthStateListener authStateListener = firebaseAuth -> {
         if (firebaseAuth.getCurrentUser() == null) {
+            TnLog.w(TnLog.AUTH, "로그인 세션 없음 → 로그인 화면");
             goToLogin();
         }
     };
@@ -26,6 +28,8 @@ public abstract class AuthenticatedActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseProvider.get(this).getAuth();
+        TnLog.i(TnLog.SCREEN, getClass().getSimpleName() + " 열림"
+                + (savedInstanceState != null ? " (복원)" : ""));
         if (auth.getCurrentUser() == null) {
             goToLogin();
         }
@@ -53,6 +57,7 @@ public abstract class AuthenticatedActivity extends AppCompatActivity {
             return;
         }
         redirectingToLogin = true;
+        TnLog.i(TnLog.SCREEN, getClass().getSimpleName() + " → LoginActivity (로그인 필요)");
         Intent intent = new Intent(this, LoginActivity.class);
 
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

@@ -4,70 +4,46 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.media.Image;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.Surface;
-import android.view.WindowManager;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.tteonam.auth.AuthenticatedActivity;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
-import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.room.Room;
 
-import com.example.tteonam.ShareActivity;
+import com.example.tteonam.auth.AuthenticatedActivity;
 import com.example.tteonam.databinding.ActivityCameraBinding;
+import com.example.tteonam.util.TnLog;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
-import com.google.mlkit.vision.common.InputImage;
-import com.google.mlkit.vision.label.ImageLabel;
-import com.google.mlkit.vision.label.ImageLabeler;
-import com.google.mlkit.vision.label.ImageLabeling;
-import com.google.mlkit.vision.label.defaults.ImageLabelerOptions;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -76,11 +52,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class CameraActivity extends AuthenticatedActivity {
-
-    private static final String TAG = "tn";
 
     // 앱 전용 폴더(filesDir) 안의 사진 폴더 이름(휴대폰 갤러리에는 안 보임)
     public static final String PHOTO_DIR = "photos";
@@ -110,8 +83,6 @@ public class CameraActivity extends AuthenticatedActivity {
     // 최근 위치 인정 시간
     private static final long LOCATION_FRESH_MS = 10_000;
 
-    private ImageLabeler labeler;
-
     // 회전 감지(CameraActivity만 회전)
     private OrientationEventListener orientationListener;
 
@@ -128,7 +99,9 @@ public class CameraActivity extends AuthenticatedActivity {
 
     private final ActivityResultLauncher<String[]> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                if (Boolean.TRUE.equals(result.get(Manifest.permission.CAMERA))) {
+                TnLog.i(TnLog.CAMERA, "권한 결과: camera=" + hasCameraPermission()
+                        + ", location=" + hasLocationPermission());
+                if (hasCameraPermission()) {
                     startCamera();
                 } else {
                     Toast.makeText(this, "카메라 권한이 필요합니다", Toast.LENGTH_SHORT).show();
@@ -149,14 +122,13 @@ public class CameraActivity extends AuthenticatedActivity {
         }
 
         WindowCompat.enableEdgeToEdge(getWindow());
-        setContentView(R.layout.activity_main);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        binding = ActivityCameraBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-        binding = ActivityCameraBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
 
         fusedClient = LocationServices.getFusedLocationProviderClient(this);
         geocoder = new Geocoder(this);
@@ -167,20 +139,20 @@ public class CameraActivity extends AuthenticatedActivity {
 
         setListeners();
 
-        checkAndRequestPermissions();
-
         photoDB = PhotoDB.get(this);
-
-//        initImageLabeler();
-
         cameraExecutor = Executors.newSingleThreadExecutor();
 
-        startCamera();
+        // 권한이 이미 있으면 바로 시작하고, 없으면 권한 창 결과에서 시작한다.
+        if (hasCameraPermission()) {
+            startCamera();
+        }
+        checkAndRequestPermissions();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (binding == null) return;   // 로그인 화면으로 이동 중
         startLocationUpdates();
         orientationListener.enable();
     }
@@ -188,6 +160,7 @@ public class CameraActivity extends AuthenticatedActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        if (binding == null) return;
         orientationListener.disable();
         if (locationCallback != null) {
             fusedClient.removeLocationUpdates(locationCallback);   // 배터리 절약, 꼭 해제
@@ -215,8 +188,13 @@ public class CameraActivity extends AuthenticatedActivity {
             }
         }
         if (!needed.isEmpty()) {
+            TnLog.d(TnLog.CAMERA, "권한 요청: " + needed);
             permissionLauncher.launch(needed.toArray(new String[0]));
         }
+    }
+
+    private boolean hasCameraPermission() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED;
     }
 
     private boolean hasLocationPermission() {
@@ -258,19 +236,37 @@ public class CameraActivity extends AuthenticatedActivity {
         return ageMs <= LOCATION_FRESH_MS;
     }
 
-    // 새 위치를 따로 요청
+    // 사진 한 장의 위치. 촬영 직후에는 위치가 없을 수 있고, 저장(Room) 뒤에 도착할 수도 있다.
+    private static final class PendingShot {
+        private Location location;
+        private long photoId = -1;   // Room에 저장되기 전에는 -1
+
+        PendingShot(Location initial) {
+            location = initial;
+        }
+    }
+
+    // 새 위치를 따로 요청. 사진이 이미 저장됐으면 Room 행에 위치를 채워 넣는다.
     @SuppressLint("MissingPermission")
-    private void requestFreshLocation(AtomicReference<Location> target) {
+    private void requestFreshLocation(PendingShot shot) {
         if (!hasLocationPermission()) return;
 
         fusedClient.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null)
                 .addOnSuccessListener(location -> {
                     if (location == null) return;
                     latestLocation = location;
-                    target.set(location);   // 이 사진의 위치를 새 값으로 교체
-                    Log.d(TAG, "새 위치 도착");
+                    long savedId;
+                    synchronized (shot) {
+                        shot.location = location;   // 이 사진의 위치를 새 값으로 교체
+                        savedId = shot.photoId;
+                    }
+                    if (savedId > 0) {
+                        PhotoDB.dbExecutor.execute(() -> photoDB.photoDao()
+                                .updateLocation(savedId, location.getLatitude(), location.getLongitude()));
+                    }
+                    TnLog.d(TnLog.CAMERA, "새 위치 도착" + (savedId > 0 ? " (저장된 사진 " + savedId + "에 반영)" : ""));
                 })
-                .addOnFailureListener(e -> Log.d(TAG, "새 위치 요청 실패", e));
+                .addOnFailureListener(e -> TnLog.w(TnLog.CAMERA, "새 위치 요청 실패", e));
     }
 
     // 테스트용(위치 버튼)
@@ -301,18 +297,17 @@ public class CameraActivity extends AuthenticatedActivity {
                         if(addresses != null && !addresses.isEmpty()){
                             int index = 0;
                             for(Address address : addresses){
-                                Log.d(TAG,index + ": " + address.getAddressLine(0));
+                                TnLog.d(TnLog.CAMERA, index + ": " + address.getAddressLine(0));
                                 index++;
                             }
                         }
                     }
                     catch(IOException e){
-                        e.printStackTrace();
-                        Log.e(TAG,"geocoder 오류");
+                        TnLog.w(TnLog.CAMERA, "geocoder 오류", e);
                     }
 
                 })
-                .addOnFailureListener(e -> Log.d(TAG, "위치 요청 실패", e));
+                .addOnFailureListener(e -> TnLog.w(TnLog.CAMERA, "위치 요청 실패", e));
     }
 
     // ───────────────────────── Orientation ─────────────────────────
@@ -350,7 +345,7 @@ public class CameraActivity extends AuthenticatedActivity {
                 cameraProvider = cameraProviderFuture.get();
                 bindCameraUseCases();
             } catch (Exception e) {
-                Log.d(TAG, "카메라 시작 실패", e);
+                TnLog.e(TnLog.CAMERA, "카메라 시작 실패", e);
             }
         }, ContextCompat.getMainExecutor(this));
     }
@@ -371,10 +366,11 @@ public class CameraActivity extends AuthenticatedActivity {
             cameraProvider.unbindAll();
             Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture);
             cameraControl = camera.getCameraControl();
+            TnLog.d(TnLog.CAMERA, "카메라 연결: " + (isFrontCamera ? "전면" : "후면"));
             cameraInfo = camera.getCameraInfo();
             isFlashOn = false;
         } catch (Exception e) {
-            Log.d(TAG, "카메라 바인딩 실패", e);
+            TnLog.e(TnLog.CAMERA, "카메라 바인딩 실패", e);
         }
     }
 
@@ -394,18 +390,22 @@ public class CameraActivity extends AuthenticatedActivity {
     }
 
     private void takeCapture() {
-        if (imageCapture == null) return;
+        if (imageCapture == null) {
+            TnLog.w(TnLog.CAMERA, "촬영 무시: 카메라 준비 전");
+            return;
+        }
+        TnLog.i(TnLog.CAMERA, "촬영");
 
         // getCurrentLocation().getResult()로 기다리지 않고, 미리 받아둔 위치를 바로 사용
         // 받아둔 위치가 오래돼면 위치 요청 저장이 끝날 때 도착해 있으면 그걸 사용
-        AtomicReference<Location> shotLocation = new AtomicReference<>(latestLocation);
-        if (!isFresh(shotLocation.get())) {
-            Log.d(TAG, "받아둔 위치가 없거나 오래됨 -> 새 위치 요청");
-            requestFreshLocation(shotLocation);
+        PendingShot shot = new PendingShot(latestLocation);
+        if (!isFresh(latestLocation)) {
+            TnLog.d(TnLog.CAMERA, "받아둔 위치가 없거나 오래됨 -> 새 위치 요청");
+            requestFreshLocation(shot);
         }
 
         // 휴대폰 갤러리에 넣지 않고 앱 전용 폴더에만 저장
-        Long capturedAt = System.currentTimeMillis();
+        long capturedAt = System.currentTimeMillis();
         String name = "IMG_" + capturedAt + ".jpeg";
         File photoFile = new File(new File(getFilesDir(), PHOTO_DIR), name);
 
@@ -414,7 +414,9 @@ public class CameraActivity extends AuthenticatedActivity {
                 new ImageCapture.OnImageCapturedCallback() {
                     @Override
                     public void onError(@NonNull ImageCaptureException exc) {
-                        Log.d(TAG, "사진 촬영 실패: " + exc.getMessage(), exc);
+                        TnLog.e(TnLog.CAMERA, "사진 촬영 실패", exc);
+                        runOnUiThread(() -> Toast.makeText(CameraActivity.this,
+                                "사진을 찍지 못했어요", Toast.LENGTH_SHORT).show());
                     }
 
                     @Override
@@ -424,14 +426,16 @@ public class CameraActivity extends AuthenticatedActivity {
                         try {
                             saveJpeg(image, photoFile);
                         } catch (IOException e) {
-                            Log.e(TAG, "사진 저장 실패", e);
+                            TnLog.e(TnLog.CAMERA, "사진 저장 실패", e);
+                            runOnUiThread(() -> Toast.makeText(CameraActivity.this,
+                                    "사진을 저장하지 못했어요", Toast.LENGTH_SHORT).show());
                             return;
                         } finally {
                             image.close();   // 꼭 닫기, 안 닫으면 다음 촬영이 막힘
                         }
 
                         // cameraExecutor 스레드 -> 화면 관련 작업은 메인 스레드로
-                        runOnUiThread(() -> onPhotoSaved(photoFile, capturedAt, rotation , shotLocation.get()));
+                        runOnUiThread(() -> onPhotoSaved(photoFile, capturedAt, rotation, shot));
                     }
                 });
     }
@@ -453,26 +457,32 @@ public class CameraActivity extends AuthenticatedActivity {
         }
     }
 
-    private void onPhotoSaved(File photoFile, long capturedAt, int rotation, Location location) {
-//        Uri savedUri = Uri.fromFile(photoFile);
-
+    private void onPhotoSaved(File photoFile, long capturedAt, int rotation, PendingShot shot) {
         Photo photo = new Photo();
         photo.path = photoFile.getPath();
         photo.capturedAt = capturedAt;
         photo.rotation = rotation;
-        photo.lat = (location != null) ? location.getLatitude() : null;
-        photo.lng = (location != null) ? location.getLongitude() : null;
-        photo.uploaded = false;
 
         PhotoDB.dbExecutor.execute(() -> {
-            long id = photoDB.photoDao().insert(photo);
+            long id;
+            // 위치 도착과 저장이 겹쳐도 위치를 잃지 않도록 같은 잠금 안에서 처리
+            synchronized (shot) {
+                Location location = shot.location;
+                photo.lat = (location != null) ? location.getLatitude() : null;
+                photo.lng = (location != null) ? location.getLongitude() : null;
+                id = photoDB.photoDao().insert(photo);
+                shot.photoId = id;
+            }
+            // 정확한 좌표는 남기지 않고 위치 유무만 기록한다.
+            TnLog.i(TnLog.CAMERA, "사진 저장: local=" + id + ", 회전 " + rotation + "°, 위치 "
+                    + (photo.lat != null ? "있음" : "없음"));
             runOnUiThread(() -> openShare(id));
         });
     }
 
     // 사진 아이디를 ShareActivity로
     private void openShare(long photoId) {
-        Log.d(TAG, "share act 실행");
+        TnLog.i(TnLog.SCREEN, "CameraActivity → ShareActivity (local=" + photoId + ")");
 
         Intent intent = new Intent(CameraActivity.this, ShareActivity.class);
         intent.putExtra(ShareActivity.EXTRA_PHOTO_ID, photoId);
@@ -488,23 +498,14 @@ public class CameraActivity extends AuthenticatedActivity {
         }
 
         isFlashOn = !isFlashOn;
+        TnLog.d(TnLog.CAMERA, "플래시 " + (isFlashOn ? "켬" : "끔"));
         cameraControl.enableTorch(isFlashOn);
     }
 
     private void toggleCamera() {
         if (cameraProvider == null) return;
         isFrontCamera = !isFrontCamera;
+        TnLog.d(TnLog.CAMERA, "카메라 전환: " + (isFrontCamera ? "전면" : "후면"));
         bindCameraUseCases();
     }
-
-//    // ───────────────────────── ML kit ─────────────────────────
-//    private void initImageLabeler(){
-//        // 신뢰도 0.7 이상인 경우만
-//        ImageLabelerOptions options = new ImageLabelerOptions.Builder()
-//                .setConfidenceThreshold(0.7f)
-//                .build();
-//
-//        labeler = ImageLabeling.getClient(options);
-////        labeler = ImageLabeling.getClient(ImageLabelerOptions.DEFAULT_OPTIONS);
-//    }
 }

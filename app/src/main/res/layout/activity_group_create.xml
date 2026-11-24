@@ -74,6 +74,7 @@
                 android:background="@drawable/bg_group_card"
                 android:hint="여행 제목"
                 android:inputType="text"
+                android:maxLength="60"
                 android:maxLines="1"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp" />

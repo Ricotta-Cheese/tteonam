@@ -34,6 +34,7 @@
 
         <Button
             android:id="@+id/btnEndTrip"
+            android:visibility="gone"
             android:layout_width="wrap_content"
             android:layout_height="32dp"
             android:layout_gravity="center_vertical|end"
@@ -154,8 +155,9 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 초대 QR / 코드 카드 -->
+            <!-- 초대 QR / 코드 카드 (방장만 표시) -->
             <LinearLayout
+                android:id="@+id/inviteCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
@@ -201,13 +203,13 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
 
-                        <!--나중에 하드코딩되어있는 초대코드 수정할 예정-->
+                        <!-- 코드가 없으면 "코드 발급"을 표시하고, 누르면 createInvite를 호출한다 -->
                         <TextView
                             android:id="@+id/tvInviteCode"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:letterSpacing="0.08"
-                            android:text="K7Q2M9"
+                            android:text="코드 발급"
                             android:textColor="#222222"
                             android:textSize="22sp"
                             android:textStyle="bold" />
@@ -228,7 +230,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="24시간 후 만료"
+                        android:text="눌러서 30분짜리 코드를 만들어요"
                         android:textColor="#9A8F85"
                         android:textSize="10sp" />
                 </LinearLayout>
@@ -247,13 +249,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center_vertical"
-                    android:text="멤버 4"
+                    android:text="멤버"
                     android:textColor="#222222"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/btnEdit"
+                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="end|center_vertical"

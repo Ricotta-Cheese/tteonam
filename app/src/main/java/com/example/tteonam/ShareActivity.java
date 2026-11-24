@@ -3,39 +3,26 @@ package com.example.tteonam;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.tteonam.auth.AuthenticatedActivity;
-import com.example.tteonam.data.FirebaseProvider;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.tteonam.auth.AuthenticatedActivity;
+import com.example.tteonam.data.BackendErrors;
+import com.example.tteonam.data.PhotoUploader;
+import com.example.tteonam.data.TripRepository;
 import com.example.tteonam.databinding.ActivityShareBinding;
-import com.example.tteonam.databinding.ActivityShareBinding;
-import com.google.android.gms.tasks.Task;
+import com.example.tteonam.util.TnLog;
 import com.google.android.material.chip.Chip;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -44,35 +31,26 @@ import java.util.Set;
 
 public class ShareActivity extends AuthenticatedActivity {
 
-    private static final String TAG = "tn";
-
     // Intent 키
     public static final String EXTRA_PHOTO_ID = "photo_id";
 
     private ActivityShareBinding binding;
 
-    private long photoId;
-
     // room
     private PhotoDB photoRoomDB;
     private Photo photo;
 
-    // firestore
-    private FirebaseFirestore photoInfoDB;
+    // 사진을 올릴 여행 (서버의 내 여행 중 현재 여행)
+    private TripRepository.TripInfo trip;
+    private boolean tripLoaded = false;
+    private boolean uploading = false;
 
+    private PhotoUploader uploader;
 
-    // 태그 수정
+    // 태그 수정 (서버 AI 분석 결과와 연결 예정, 지금은 화면에서 숨김)
     private final LinkedHashSet<String> currentTagIds = new LinkedHashSet<>();
     private final Set<String> aiTagIds = new HashSet<>();
     private final LinkedHashMap<String, String> tagLabels = new LinkedHashMap<>();
-
-    // trip 별로 사진 저장
-    private String tripId;
-
-    private String uid;
-
-    // 디버깅용
-    private int checker = 0;
 
     // ───────────────────────── Lifecycle ─────────────────────────
 
@@ -87,214 +65,208 @@ public class ShareActivity extends AuthenticatedActivity {
         binding = ActivityShareBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         ViewCompat.setOnApplyWindowInsetsListener(binding.main, (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            Insets bars = insets.getInsets(
+                    WindowInsetsCompat.Type.systemBars() | WindowInsetsCompat.Type.ime());
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
             return insets;
         });
 
-        Log.d(TAG, "share act " + checker++);
-        setIds();
-
-        Log.d(TAG, "share act " + checker++);
-        setListeners();
-
-        Log.d(TAG, "share act " + checker++);
         photoRoomDB = PhotoDB.get(this);
+        uploader = new PhotoUploader(this);
+        setListeners();
+        updateButtons();
 
-        Log.d(TAG, "share act " + checker++);
-        initializeCloudFirestore();
-
-        Log.d(TAG, "share act " + checker++);
-        photoId = getIntent().getLongExtra(EXTRA_PHOTO_ID, -1);
-
-        Log.d(TAG, "share act " + checker++);
+        long photoId = getIntent().getLongExtra(EXTRA_PHOTO_ID, -1);
         PhotoDB.dbExecutor.execute(() -> {
             Photo loaded = photoRoomDB.photoDao().findById(photoId);
             runOnUiThread(() -> {
+                if (isFinishing() || isDestroyed()) return;
                 if (loaded == null) {
-                    Toast.makeText(this, "share act 사진 찾지 못함", Toast.LENGTH_SHORT).show();
+                    TnLog.w(TnLog.SHARE, "Room에 사진 없음: local=" + photoId);
+                    Toast.makeText(this, "사진을 찾지 못했어요", Toast.LENGTH_SHORT).show();
                     finish();
                     return;
                 }
                 photo = loaded;
-                showPhoto();
+                TnLog.d(TnLog.SHARE, "사진 불러옴: local=" + photo.id + ", 위치 "
+                        + (photo.lat != null ? "있음" : "없음") + ", docCreated=" + photo.docCreated);
+                if (!showPhoto()) return;
+                bindPhotoOptions();
                 binding.loading.setVisibility(View.GONE);
                 binding.content.setVisibility(View.VISIBLE);
+                updateButtons();
             });
         });
+
+        loadTrip();
     }
 
     // ───────────────────────── init ─────────────────────────
 
-    // 임시
-    private void setIds(){
-        tripId = "12341234";
-        uid = "01234567";
-    }
-
-    private void initializeCloudFirestore() {
-        photoInfoDB = FirebaseProvider.get(this).getFirestore();   // merge-test: 팀 공통 FirebaseProvider 사용 (debug=에뮬레이터)
+    private void loadTrip() {
+        binding.tripText.setText("여행 정보를 불러오는 중…");
+        new TripRepository(this).loadCurrentTrip().addOnCompleteListener(this, task -> {
+            tripLoaded = true;
+            if (!task.isSuccessful()) {
+                TnLog.w(TnLog.SHARE, "현재 여행 불러오기 실패", task.getException());
+                trip = null;
+                binding.tripText.setText(BackendErrors.message(task.getException()));
+            } else {
+                trip = task.getResult();
+                TnLog.d(TnLog.SHARE, "업로드 대상 여행: " + (trip == null ? "없음" : trip.tripId));
+                binding.tripText.setText(trip == null
+                        ? "참여 중인 여행이 없어요. 그룹을 만들거나 참여하면 올릴 수 있어요."
+                        : "‘" + trip.name + "’ 여행에 올려요");
+            }
+            updateButtons();
+        });
     }
 
     private void setListeners() {
-        binding.backButton.setOnClickListener(v -> finish());
-        binding.deletePhoto.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deletePhoto(photo);
-            }
+        binding.backButton.setOnClickListener(v -> {
+            TnLog.i(TnLog.SHARE, "나중에: 사진을 기기에 남김 (local=" + (photo == null ? -1 : photo.id) + ")");
+            finish();   // 사진은 기기에 남겨 둔다
         });
+        binding.deletePhoto.setOnClickListener(v -> confirmDelete());
         binding.noShareButton.setOnClickListener(v -> uploadPhoto(PhotoDocument.VISIBILITY_PRIVATE));
         binding.groupShareButton.setOnClickListener(v -> uploadPhoto(PhotoDocument.VISIBILITY_GROUP));
+        binding.addTagButton.setOnClickListener(v -> openTagPicker());
+    }
+
+    // 위치가 없는 사진은 위치 공유를 켤 수 없다.
+    private void bindPhotoOptions() {
+        boolean hasLocation = photo.lat != null && photo.lng != null;
+        binding.shareLocationSwitch.setEnabled(hasLocation);
+        binding.shareLocationSwitch.setChecked(hasLocation);
+        if (!hasLocation) {
+            binding.shareLocationSwitch.setText("촬영 위치 정보가 없어요");
+        }
+        if (photo.docCreated) {
+            // 이전 시도에서 서버 문서가 만들어졌으면 코멘트·위치 선택은 그때 값으로 고정된다.
+            binding.commentInput.setEnabled(false);
+            binding.shareLocationSwitch.setEnabled(false);
+        }
     }
 
     // ───────────────────────── Photo ─────────────────────────
 
-    private void showPhoto() {
-        int rotation = photo.rotation;
+    private boolean showPhoto() {
         String photoPath = photo.path;
-
-        if (photoPath == null || !new File(photoPath).exists()) {
+        if (!new File(photoPath).exists()) {
             Toast.makeText(this, "사진을 찾을 수 없어요", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "사진 없음: " + photoPath);
+            TnLog.w(TnLog.SHARE, "사진 파일 없음: " + photoPath);
             finish();
-            return;
+            return false;
         }
 
-        // 가로 세로 1/4 압축
+        // 화면 표시용으로 가로 세로 1/4 압축 (업로드용 인코딩은 PhotoUploader가 따로 한다)
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 4;
         Bitmap bitmap = BitmapFactory.decodeFile(photoPath, options);
         if (bitmap == null) {
             Toast.makeText(this, "사진을 열 수 없어요", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "사진 디코딩 실패: " + photoPath);
+            TnLog.w(TnLog.SHARE, "사진 디코딩 실패: " + photoPath);
             finish();
-            return;
+            return false;
         }
 
-        if (rotation != 0) {
+        if (photo.rotation != 0) {
             Matrix matrix = new Matrix();
-            matrix.postRotate(rotation);
+            matrix.postRotate(photo.rotation);
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         }
         binding.photoImage.setImageBitmap(bitmap);
+        return true;
     }
 
     // ───────────────────────── Upload ─────────────────────────
-    private static final long MAX_IMAGE_BYTES = 10L * 1024 * 1024;   // 원본 10MiB
-    private static final int MAX_THUMB_BYTES = 512 * 1024;            // 썸네일 512KiB
-    private static final int THUMB_LONG_SIDE = 640;                   // 썸네일 긴 변(px)
 
     private void uploadPhoto(String visibility) {
-        if (photo == null) return;
+        if (photo == null || trip == null || uploading) return;
 
-        File original = new File(photo.path);
-        if (original.length() > MAX_IMAGE_BYTES) {
-            Toast.makeText(this, "사진 10MB 초과", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        byte[] thumbBytes = makeThumbnail();
-        if (thumbBytes.length > MAX_THUMB_BYTES) {
-            Toast.makeText(this, "썸네일 크기 초과", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "썸네일 크기 초과: " + thumbBytes.length);
-            return;
-        }
+        CharSequence comment = binding.commentInput.getText();
+        boolean shareLocation = binding.shareLocationSwitch.isEnabled()
+                && binding.shareLocationSwitch.isChecked();
 
-        setUploading(true); // 버튼 끄고 로딩
-
-        CollectionReference photosRef = photoInfoDB
-                .collection("trips")
-                .document(tripId)
-                .collection("photos");
-
-        // 재시도 -> id 재사용
-        DocumentReference docRef = (photo.serverPhotoId != null)
-                ? photosRef.document(photo.serverPhotoId)
-                : photosRef.document();
-        String serverPhotoId = docRef.getId();
-        long localId = photo.id;
-
-        if (photo.serverPhotoId == null) {
-            photo.serverPhotoId = serverPhotoId;
-            PhotoDB.dbExecutor.execute(() -> photoRoomDB.photoDao().updateServerPhotoId(localId, serverPhotoId));
-        }
-
-        PhotoDocument doc = PhotoDocument.builder(tripId, uid, serverPhotoId)
-                .visibility(visibility)
-                .capturedAt(photo.capturedAt)
-                .comment(binding.commentInput.getText().toString())
-                .location(photo.lat, photo.lng, getShareLocationChecked())
-                .build();
-
-        StorageReference root = FirebaseProvider.get(this).getStorage().getReference();
-
-        docRef.set(doc.toMap())
-                .continueWithTask(t -> { //  문서가 생긴 뒤에 원본 업로드
-                    if (!t.isSuccessful()) throw failure(t);
-                    Log.d(TAG, "share act 문서 생성 완료: " + serverPhotoId);
-                    return root.child(doc.getImagePath()).putFile(Uri.fromFile(original));
-                })
-                .continueWithTask(t -> { // 원본이 올라간 뒤에 썸네일 업로드
-                    if (!t.isSuccessful()) throw failure(t);
-                    Log.d(TAG, "share act 원본 업로드 완료");
-                    return root.child(doc.getThumbnailPath()).putBytes(thumbBytes);
-                })
-                .addOnSuccessListener(r -> {
-                    Log.d(TAG, "share act 업로드 완료: " + serverPhotoId);
-                    PhotoDB.dbExecutor.execute(() -> {
-//                        photoRoomDB.photoDao().markUploaded(localId);
-                        deletePhoto(photo);
-                        runOnUiThread(this::finish);
-                    });
-                })
-                .addOnFailureListener(e -> {
-                    Log.e(TAG, "share act 업로드 실패", e);
-                    Toast.makeText(this, "업로드에 실패했어요. 다시 시도해 주세요", Toast.LENGTH_SHORT).show();
-                    setUploading(false); // 다시 누르기
+        TnLog.i(TnLog.SHARE, "업로드 요청: " + visibility + ", 위치공유=" + shareLocation
+                + ", 코멘트 " + (comment == null ? 0 : comment.length()) + "자");
+        setUploading(true);
+        uploader.upload(photo.id, trip.tripId, visibility,
+                        comment == null ? "" : comment.toString(), shareLocation)
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        TnLog.i(TnLog.SHARE, "업로드 성공: photo=" + task.getResult());
+                        Toast.makeText(this, PhotoDocument.VISIBILITY_GROUP.equals(visibility)
+                                ? "그룹에 공유했어요" : "내 앨범에 올렸어요", Toast.LENGTH_SHORT).show();
+                        finish();
+                        return;
+                    }
+                    TnLog.e(TnLog.SHARE, "업로드 실패", task.getException());
+                    Toast.makeText(this, BackendErrors.message(task.getException()),
+                            Toast.LENGTH_LONG).show();
+                    setUploading(false);
+                    // 공개 범위·코멘트는 첫 시도에서 서버 문서에 고정될 수 있으므로 최신 상태를 다시 읽는다.
+                    reloadPhotoState();
                 });
     }
 
-    // 실패한 Task의 예외
-    private static Exception failure(Task<?> t) {
-        Exception e = t.getException();
-        return (e != null) ? e : new Exception("작업 취소");
+    private void reloadPhotoState() {
+        long id = photo.id;
+        PhotoDB.dbExecutor.execute(() -> {
+            Photo latest = photoRoomDB.photoDao().findById(id);
+            runOnUiThread(() -> {
+                if (latest == null || isFinishing()) return;
+                photo = latest;
+                if (photo.docCreated) {
+                    // 문서가 이미 만들어졌으면 코멘트·위치 선택은 처음 값으로 유지된다.
+                    binding.commentInput.setEnabled(false);
+                    binding.shareLocationSwitch.setEnabled(false);
+                }
+            });
+        });
     }
 
-    private void setUploading(boolean uploading) {
-        binding.noShareButton.setEnabled(!uploading);
-        binding.groupShareButton.setEnabled(!uploading);
-        binding.deletePhoto.setEnabled(!uploading);
-        binding.loading.setVisibility(uploading ? View.VISIBLE : View.GONE);
+    private void setUploading(boolean value) {
+        uploading = value;
+        binding.loading.setVisibility(value ? View.VISIBLE : View.GONE);
+        updateButtons();
     }
 
-    // 화면에 띄운 비트맵으로 썸네일
-    private byte[] makeThumbnail() {
-        Bitmap src = ((BitmapDrawable) binding.photoImage.getDrawable()).getBitmap();
-        float scale = (float) THUMB_LONG_SIDE / Math.max(src.getWidth(), src.getHeight());
-        Bitmap small = (scale < 1f)
-                ? Bitmap.createScaledBitmap(src, Math.round(src.getWidth() * scale), Math.round(src.getHeight() * scale), true)
-                : src;
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        small.compress(Bitmap.CompressFormat.JPEG, 50, baos);
-        return baos.toByteArray();
+    private void updateButtons() {
+        boolean canUpload = photo != null && trip != null && tripLoaded && !uploading;
+        binding.noShareButton.setEnabled(canUpload);
+        binding.groupShareButton.setEnabled(canUpload);
+        binding.deletePhoto.setEnabled(photo != null && !uploading);
+        binding.backButton.setEnabled(!uploading);
     }
 
     // ───────────────────────── delete photo ─────────────────────────
-    private void deletePhoto(Photo photo) {
-        if (photo == null || !deleteCheckAndReturnYes()) return;
+
+    private void confirmDelete() {
+        if (photo == null || uploading) return;
+        new AlertDialog.Builder(this)
+                .setTitle("사진 삭제")
+                .setMessage("기기에 저장된 이 사진을 삭제할까요? 되돌릴 수 없어요.")
+                .setPositiveButton("삭제", (dialog, which) -> {
+                    TnLog.i(TnLog.SHARE, "사진 삭제: local=" + photo.id);
+                    deletePhoto(photo);
+                })
+                .setNegativeButton("취소", null)
+                .show();
+    }
+
+    private void deletePhoto(Photo target) {
         PhotoDB.dbExecutor.execute(() -> {
-            photoRoomDB.photoDao().delete(photo);
-            new File(photo.path).delete();      // 사진 파일도 같이 삭제
+            photoRoomDB.photoDao().delete(target);
+            if (!new File(target.path).delete()) {
+                TnLog.w(TnLog.SHARE, "사진 파일 삭제 실패: " + target.path);
+            }
             runOnUiThread(this::finish);         // 삭제가 끝나면 화면 닫기
         });
     }
 
-    private boolean deleteCheckAndReturnYes(){
-        //
-        return true;
-    }
-
     // ───────────────────────── image self labeling ─────────────────────────
+    // TODO(박이든): 업로드 후 getPhotoAnalysis/updatePhotoTags와 연결하면 태그 UI를 다시 보이게 한다.
     private void showTags() {
         binding.tagChips.removeAllViews();
         for (String id : currentTagIds) {
@@ -311,6 +283,7 @@ public class ShareActivity extends AuthenticatedActivity {
 
     // + Tag 버튼: 120개 중 체크해서 고르기
     private void openTagPicker() {
+        if (tagLabels.isEmpty()) return;
         String[] ids = tagLabels.keySet().toArray(new String[0]);
         String[] labels = tagLabels.values().toArray(new String[0]);
         boolean[] checked = new boolean[ids.length];
@@ -332,24 +305,15 @@ public class ShareActivity extends AuthenticatedActivity {
 
     // 서버로 보낼 값: "원하는 최종 태그"와 "AI 추천"의 차이
     // added = 최종 - AI, removed = AI - 최종   (최종 = (AI - removed) ∪ added 를 거꾸로 계산)
-    private List<String> addedTagIds() {
+    List<String> addedTagIds() {
         List<String> added = new ArrayList<>(currentTagIds);
         added.removeAll(aiTagIds);
         return added;
     }
 
-    private List<String> removedTagIds() {
+    List<String> removedTagIds() {
         List<String> removed = new ArrayList<>(aiTagIds);
         removed.removeAll(currentTagIds);
         return removed;
     }
-
-    private boolean isNetworkConnected(){
-        return true;
-    }
-
-    private boolean getShareLocationChecked(){
-        return true;
-    }
 }
-

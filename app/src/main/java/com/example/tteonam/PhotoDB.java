@@ -6,13 +6,11 @@ import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
-import com.example.tteonam.PhotoDao;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-@Database(entities = {Photo.class}, version = 2, exportSchema = false)
+@Database(entities = {Photo.class}, version = 3, exportSchema = false)
 public abstract class PhotoDB extends RoomDatabase {
 
     public abstract PhotoDao photoDao();

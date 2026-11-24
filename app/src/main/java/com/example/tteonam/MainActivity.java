@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.example.tteonam.auth.AuthValidator;
 import com.example.tteonam.auth.AuthenticatedActivity;
 import com.example.tteonam.auth.HomeViewModel;
+import com.example.tteonam.util.TnLog;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -104,7 +105,10 @@ public class MainActivity extends AuthenticatedActivity {
     }
 
     private void openOnClick(int viewId, Class<?> screen) {
-        findViewById(viewId).setOnClickListener(v -> startActivity(new Intent(this, screen)));
+        findViewById(viewId).setOnClickListener(v -> {
+            TnLog.i(TnLog.SCREEN, "MainActivity → " + screen.getSimpleName());
+            startActivity(new Intent(this, screen));
+        });
     }
 
     private void showAccountMenu(View anchor) {

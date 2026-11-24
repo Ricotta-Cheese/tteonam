@@ -5,6 +5,8 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.tteonam.util.TnLog;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,28 +42,29 @@ public class AuthRepository {
 
     @NonNull
     public Task<AuthResult> signIn(@NonNull String email, @NonNull String password) {
-        return auth.signInWithEmailAndPassword(email, password);
+        return TnLog.track(TnLog.AUTH, "signIn", auth.signInWithEmailAndPassword(email, password));
     }
 
     @NonNull
     public Task<AuthResult> signUp(@NonNull String email, @NonNull String password) {
-        return auth.createUserWithEmailAndPassword(email, password);
+        return TnLog.track(TnLog.AUTH, "signUp", auth.createUserWithEmailAndPassword(email, password));
     }
 
     public void signOut() {
+        TnLog.i(TnLog.AUTH, "로그아웃");
         auth.signOut();
     }
 
     @NonNull
     public Task<DocumentSnapshot> loadProfile(@NonNull String uid) {
-        return profileRef(uid).get();
+        return TnLog.track(TnLog.AUTH, "loadProfile", profileRef(uid).get());
     }
 
     @NonNull
     // users/{uid}는 닉네임과 생성·수정 시각만 저장한다.
     public Task<Void> createProfileIfMissing(@NonNull String uid, @NonNull String nickname) {
         DocumentReference ref = profileRef(uid);
-        return db.runTransaction(transaction -> {
+        return TnLog.track(TnLog.AUTH, "createProfile", db.runTransaction(transaction -> {
             DocumentSnapshot existing = transaction.get(ref);
             if (!existing.exists()) {
                 Map<String, Object> profile = new HashMap<>();
@@ -72,7 +75,7 @@ public class AuthRepository {
                 transaction.set(ref, profile);
             }
             return null;
-        });
+        }));
     }
 
     @NonNull

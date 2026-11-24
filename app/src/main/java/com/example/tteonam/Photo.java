@@ -23,13 +23,12 @@ public class Photo {
     @Nullable
     public Double lng;
 
-//    @Nullable
-//    public String comment;          // 05 공유에서 쓰는 코멘트
-//    @Nullable
-//    public String labels;           // ML Kit 라벨 ("Food,Sky" 처럼 쉼표로)
-
+    // 업로드를 처음 시작할 때 정해지고 재시도에서도 그대로 쓴다.
+    // Storage 경로와 Firestore 문서가 이 두 값으로 고정되기 때문이다.
     @Nullable
-    public String serverPhotoId;    // Firestore trips/{tripId}/photos/{photoId}, 업로드를 처음 시작할 때 정해짐
+    public String tripId;           // trips/{tripId}
+    @Nullable
+    public String serverPhotoId;    // trips/{tripId}/photos/{serverPhotoId}
 
-    public boolean uploaded;        // 서버에 올렸는지 (나중에 사용)
+    public boolean docCreated;      // Firestore 사진 문서(uploading)를 만들었는지
 }

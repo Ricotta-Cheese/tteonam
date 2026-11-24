@@ -1,7 +1,6 @@
 package com.example.tteonam.auth;
 
 import android.app.Application;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -9,12 +8,10 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.tteonam.BuildConfig;
 import com.example.tteonam.data.AuthRepository;
+import com.example.tteonam.util.TnLog;
 
 public class LoginViewModel extends AndroidViewModel {
-    private static final String TAG = "LoginViewModel";
-
     public enum Status {
         IDLE,
 
@@ -70,6 +67,8 @@ public class LoginViewModel extends AndroidViewModel {
         String emailError = AuthValidator.validateEmail(email);
         String passwordError = AuthValidator.validateLoginPassword(password);
         if (emailError != null || passwordError != null) {
+            TnLog.d(TnLog.AUTH, "로그인 입력 오류(email=" + (emailError != null)
+                    + ", password=" + (passwordError != null) + ")");
             state.setValue(new UiState(Status.IDLE, emailError, passwordError, null));
             return;
         }
@@ -77,11 +76,12 @@ public class LoginViewModel extends AndroidViewModel {
         state.setValue(new UiState(Status.LOADING, null, null, null));
         repository.signIn(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                TnLog.i(TnLog.AUTH, "로그인 성공: uid=" + TnLog.shortId(
+                        repository.getCurrentUser() == null ? null : repository.getCurrentUser().getUid()));
                 state.setValue(new UiState(Status.SUCCESS, null, null, null));
             } else {
-                if (BuildConfig.DEBUG) {
-                    Log.w(TAG, "로그인 실패", task.getException());
-                }
+                // 인증 오류 상세는 개발 빌드에서만 남긴다(기존 방침 유지).
+                TnLog.d(TnLog.AUTH, "로그인 실패", task.getException());
                 String message = AuthErrorMessages.forSignIn(task.getException());
                 state.setValue(new UiState(Status.IDLE, null, null, message));
             }

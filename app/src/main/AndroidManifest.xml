@@ -45,7 +45,7 @@
         <activity
             android:name=".CameraActivity"
             android:screenOrientation="portrait"
-            android:exported="true"
+            android:exported="false"
             android:label="@string/title_camera"
             android:windowSoftInputMode="adjustResize" />
         <activity

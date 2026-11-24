@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "556574000550",
+    "project_id": "tteonam",
+    "storage_bucket": "tteonam.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:556574000550:android:6e8e6c40f3b304bb68fb67",
+        "android_client_info": {
+          "package_name": "com.example.tteonam"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBOWqT46u8bMLSvN1m7o6rBIfOyAUBe8u4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

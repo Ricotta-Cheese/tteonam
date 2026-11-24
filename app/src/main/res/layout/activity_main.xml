@@ -1,96 +1,407 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+    03 홈 화면 (기획서 9쪽 시안).
+    아래 네 영역(section) 중 하나만 보인다. 어떤 영역을 보일지는 MainActivity.render()가 정한다.
+      loading_section : 로그인 정보 확인 중
+      home_section    : 홈 (위쪽 바, 기록 요약 카드, 최근 순간, 하단 탭)
+      profile_section : 프로필이 없을 때 닉네임 입력
+      error_section   : 프로필 확인 실패 (다시 시도 / 로그아웃)
+    여행·사진 기능이 아직 없으므로 홈은 "빈 상태"로 보여 준다.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
+    android:clipChildren="false"
     tools:context=".MainActivity">
 
-    <FrameLayout
+    <!-- ========== 1) 확인 중 ========== -->
+    <LinearLayout
+        android:id="@+id/loading_section"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:visibility="gone">
 
-        <LinearLayout
-            android:id="@+id/loading_section"
-            android:layout_width="match_parent"
+        <ProgressBar
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:indeterminateTint="@color/tn_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center_horizontal"
-            android:orientation="vertical">
+            android:layout_marginTop="14dp"
+            android:text="@string/home_loading"
+            android:textAppearance="@style/TextAppearance.Tteonam.Caption" />
+    </LinearLayout>
 
-            <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:indeterminate="true" />
+    <!-- ========== 2) 홈 ========== -->
+    <LinearLayout
+        android:id="@+id/home_section"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:orientation="vertical"
+        android:visibility="gone"
+        tools:visibility="visible">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/home_loading" />
-        </LinearLayout>
-
+        <!-- 위쪽 바: 인사 + 그룹 아이콘 + 계정(로그아웃) 아이콘 -->
         <LinearLayout
-            android:id="@+id/home_section"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            tools:visibility="visible">
+            android:layout_height="60dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="20dp"
+            android:paddingEnd="8dp">
 
             <TextView
                 android:id="@+id/welcome_text"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                tools:text="여행자님, 반가워요" />
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Tteonam.Title"
+                android:textSize="19sp"
+                tools:text="지수님, 반가워요" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="@string/home_empty_trips"
-                android:textAppearance="?attr/textAppearanceBodyLarge" />
+            <ImageButton
+                android:id="@+id/group_button"
+                style="@style/Widget.Tteonam.IconButton"
+                android:contentDescription="@string/cd_group"
+                android:src="@drawable/ic_group" />
 
-            <Button
+            <!-- 누르면 "로그아웃" 메뉴가 열린다 (menu/menu_account.xml) -->
+            <ImageButton
                 android:id="@+id/logout_button"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="@string/action_logout" />
+                style="@style/Widget.Tteonam.IconButton"
+                android:contentDescription="@string/cd_account"
+                android:src="@drawable/ic_account" />
         </LinearLayout>
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="20dp"
+                android:paddingBottom="24dp">
+
+                <!-- 기록 요약 카드: 사진 수 · 방문 장소 · 이동 거리 (여행이 없어서 0) -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_stats_card"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:alpha="0.7"
+                        android:text="@string/home_stats_caption"
+                        android:textColor="@color/tn_on_ink"
+                        android:textSize="12sp" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <!-- 사진 -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/stat_photos_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0장"
+                                android:textColor="@color/tn_on_ink"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:alpha="0.7"
+                                android:text="@string/home_stats_photos"
+                                android:textColor="@color/tn_on_ink"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <!-- 방문 장소 -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/stat_places_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0곳"
+                                android:textColor="@color/tn_on_ink"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:alpha="0.7"
+                                android:text="@string/home_stats_places"
+                                android:textColor="@color/tn_on_ink"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+
+                        <!-- 이동 거리 -->
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/stat_distance_value"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="0km"
+                                android:textColor="@color/tn_on_ink"
+                                android:textSize="22sp"
+                                android:textStyle="bold"
+                                tools:ignore="HardcodedText" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:alpha="0.7"
+                                android:text="@string/home_stats_distance"
+                                android:textColor="@color/tn_on_ink"
+                                android:textSize="12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+                <!-- 우리의 최근 순간 -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp"
+                    android:layout_marginBottom="12dp"
+                    android:text="@string/home_recent_title"
+                    android:textAppearance="@style/TextAppearance.Tteonam.Title" />
+
+                <!-- 사진이 없을 때의 빈 상태 카드 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_empty_card"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="20dp"
+                    android:paddingVertical="28dp">
+
+                    <ImageView
+                        android:layout_width="56dp"
+                        android:layout_height="56dp"
+                        android:background="@drawable/bg_icon_badge"
+                        android:importantForAccessibility="no"
+                        android:padding="14dp"
+                        android:src="@drawable/ic_photo_empty"
+                        app:tint="@color/tn_primary" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:gravity="center"
+                        android:text="@string/home_empty_photos"
+                        android:textAppearance="@style/TextAppearance.Tteonam.Body" />
+
+                    <Button
+                        android:id="@+id/create_trip_button"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:minHeight="48dp"
+                        android:text="@string/action_create_trip"
+                        android:textSize="15sp" />
+
+                    <Button
+                        android:id="@+id/join_trip_button"
+                        style="@style/Widget.Tteonam.Button.Outlined"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:minHeight="48dp"
+                        android:text="@string/action_join_trip" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- 하단 탭: 홈 · 지도 · [촬영] · 앨범 · 회고 -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="68dp"
+            android:clipChildren="false">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_bottom_bar"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/nav_home"
+                    style="@style/Widget.Tteonam.NavItem">
+
+                    <ImageView
+                        style="@style/Widget.Tteonam.NavIcon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_home" />
+
+                    <TextView
+                        style="@style/Widget.Tteonam.NavLabel"
+                        android:text="@string/nav_home" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/nav_map"
+                    style="@style/Widget.Tteonam.NavItem">
+
+                    <ImageView
+                        style="@style/Widget.Tteonam.NavIcon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_map" />
+
+                    <TextView
+                        style="@style/Widget.Tteonam.NavLabel"
+                        android:text="@string/nav_map" />
+                </LinearLayout>
+
+                <!-- 가운데 촬영 버튼 자리 -->
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <LinearLayout
+                    android:id="@+id/nav_album"
+                    style="@style/Widget.Tteonam.NavItem">
+
+                    <ImageView
+                        style="@style/Widget.Tteonam.NavIcon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_album" />
+
+                    <TextView
+                        style="@style/Widget.Tteonam.NavLabel"
+                        android:text="@string/nav_album" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/nav_retro"
+                    style="@style/Widget.Tteonam.NavItem">
+
+                    <ImageView
+                        style="@style/Widget.Tteonam.NavIcon"
+                        android:importantForAccessibility="no"
+                        android:src="@drawable/ic_retro" />
+
+                    <TextView
+                        style="@style/Widget.Tteonam.NavLabel"
+                        android:text="@string/nav_retro" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- 탭 바 위로 살짝 튀어나온 둥근 촬영 버튼 -->
+            <ImageButton
+                android:id="@+id/camera_button"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center_horizontal|top"
+                android:background="@drawable/bg_camera_button"
+                android:contentDescription="@string/cd_camera"
+                android:elevation="6dp"
+                android:padding="16dp"
+                android:scaleType="fitCenter"
+                android:src="@drawable/ic_camera"
+                android:translationY="-18dp"
+                app:tint="@color/tn_on_primary" />
+        </FrameLayout>
+    </LinearLayout>
+
+    <!-- ========== 3) 닉네임 입력 (프로필 없음) ========== -->
+    <ScrollView
+        android:id="@+id/profile_section"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:visibility="gone">
+
         <LinearLayout
-            android:id="@+id/profile_section"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_vertical"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:padding="24dp">
+
+            <ImageView
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:background="@drawable/bg_icon_badge"
+                android:importantForAccessibility="no"
+                android:padding="14dp"
+                android:src="@drawable/ic_account"
+                app:tint="@color/tn_primary" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="18dp"
                 android:text="@string/profile_title"
-                android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+                android:textAppearance="@style/TextAppearance.Tteonam.Display"
+                android:textSize="22sp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="16dp"
-                android:text="@string/profile_description" />
+                android:layout_marginTop="6dp"
+                android:layout_marginBottom="20dp"
+                android:text="@string/profile_description"
+                android:textAppearance="@style/TextAppearance.Tteonam.Caption" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="6dp"
+                android:labelFor="@id/nickname_input"
+                android:text="@string/hint_nickname"
+                android:textAppearance="@style/TextAppearance.Tteonam.Label" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/nickname_layout"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.Tteonam.TextInput.NoHint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/hint_nickname"
                 app:counterEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -98,6 +409,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:autofillHints="nickname"
+                    android:hint="@string/placeholder_nickname"
                     android:inputType="textPersonName"
                     android:maxLines="1" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -107,7 +419,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textColor="?attr/colorError"
+                android:textAppearance="@style/TextAppearance.Tteonam.Body"
+                android:textColor="@color/tn_error"
                 android:visibility="gone" />
 
             <Button
@@ -119,43 +432,65 @@
 
             <Button
                 android:id="@+id/profile_logout_button"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.Tteonam.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
+                android:layout_marginTop="4dp"
                 android:text="@string/action_logout" />
         </LinearLayout>
+    </ScrollView>
 
-        <LinearLayout
-            android:id="@+id/error_section"
+    <!-- ========== 4) 오류 ========== -->
+    <LinearLayout
+        android:id="@+id/error_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/bg_icon_badge"
+            android:importantForAccessibility="no"
+            android:padding="16dp"
+            android:src="@drawable/ic_cloud_off"
+            app:tint="@color/tn_primary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/error_title"
+            android:textAppearance="@style/TextAppearance.Tteonam.Title" />
+
+        <TextView
+            android:id="@+id/error_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center_horizontal"
-            android:orientation="vertical"
-            android:visibility="gone">
+            android:layout_marginTop="6dp"
+            android:gravity="center"
+            android:textAppearance="@style/TextAppearance.Tteonam.Caption"
+            tools:text="서버에 연결할 수 없어요." />
 
-            <TextView
-                android:id="@+id/error_text"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                tools:text="서버에 연결할 수 없어요." />
+        <Button
+            android:id="@+id/retry_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="@string/action_retry" />
 
-            <Button
-                android:id="@+id/retry_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/action_retry" />
+        <Button
+            android:id="@+id/error_logout_button"
+            style="@style/Widget.Tteonam.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/action_logout" />
+    </LinearLayout>
 
-            <Button
-                android:id="@+id/error_logout_button"
-                style="@style/Widget.Material3.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/action_logout" />
-        </LinearLayout>
-
-    </FrameLayout>
-</ScrollView>
+</FrameLayout>

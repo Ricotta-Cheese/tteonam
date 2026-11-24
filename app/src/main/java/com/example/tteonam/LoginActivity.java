@@ -10,6 +10,7 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -46,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     private TextView formErrorText;
     private TextView infoText;
     private Button loginButton;
-    private Button signUpButton;
+    private TextView signUpButton;
     private ProgressBar progress;
 
     @Override
@@ -102,6 +103,12 @@ public class LoginActivity extends AppCompatActivity {
 
         signUpButton.setOnClickListener(v ->
                 signUpLauncher.launch(new Intent(this, SignUpActivity.class)));
+
+        // 비밀번호 찾기·Google 로그인은 다음 단계에서 연결한다. 지금은 준비 중 안내만 한다.
+        View.OnClickListener comingSoon = v ->
+                Toast.makeText(this, R.string.coming_soon, Toast.LENGTH_SHORT).show();
+        findViewById(R.id.forgot_password_button).setOnClickListener(comingSoon);
+        findViewById(R.id.google_button).setOnClickListener(comingSoon);
     }
 
     private void requestLocalNetworkPermissionForEmulator() {

@@ -1,6 +1,7 @@
 package com.example.tteonam;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -11,6 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -125,6 +127,10 @@ public class SignUpActivity extends AppCompatActivity {
                 textOf(passwordInput), textOf(confirmInput),
                 allTermsAccepted()));
         retryProfileButton.setOnClickListener(v -> viewModel.retryProfile());
+
+        // 위쪽 바의 뒤로 가기 화살표: 기기의 뒤로 가기와 똑같이 동작한다.
+        findViewById(R.id.back_button).setOnClickListener(v ->
+                getOnBackPressedDispatcher().onBackPressed());
     }
 
     private void refreshForm() {
@@ -149,6 +155,7 @@ public class SignUpActivity extends AppCompatActivity {
         } else {
             confirmLayout.setError(null);
             confirmLayout.setHelperText(getString(R.string.sign_up_password_match));
+            confirmLayout.setHelperTextColor(colorList(R.color.tn_success));
         }
 
         boolean allValid = nicknameError == null && emailError == null
@@ -163,6 +170,14 @@ public class SignUpActivity extends AppCompatActivity {
                 + mark(AuthValidator.hasAsciiLetter(password)) + " 영문   "
                 + mark(AuthValidator.hasDigit(password)) + " 숫자";
         passwordLayout.setHelperText(text);
+        // 세 규칙을 모두 지키면 초록색, 아니면 회색으로 보여 준다.
+        boolean allOk = AuthValidator.validateSignUpPassword(password) == null;
+        passwordLayout.setHelperTextColor(
+                colorList(allOk ? R.color.tn_success : R.color.tn_text_secondary));
+    }
+
+    private ColorStateList colorList(int colorRes) {
+        return ColorStateList.valueOf(ContextCompat.getColor(this, colorRes));
     }
 
     private static String mark(boolean ok) {

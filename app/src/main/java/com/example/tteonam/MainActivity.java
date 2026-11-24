@@ -1,8 +1,10 @@
 package com.example.tteonam;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.core.graphics.Insets;
@@ -83,9 +85,39 @@ public class MainActivity extends AuthenticatedActivity {
         findViewById(R.id.retry_button).setOnClickListener(v -> viewModel.retry());
 
         View.OnClickListener logout = v -> viewModel.logout();
-        findViewById(R.id.logout_button).setOnClickListener(logout);
         findViewById(R.id.profile_logout_button).setOnClickListener(logout);
         findViewById(R.id.error_logout_button).setOnClickListener(logout);
+        // 홈 오른쪽 위 계정 아이콘: 누르면 "로그아웃" 메뉴를 띄운다.
+        findViewById(R.id.logout_button).setOnClickListener(this::showAccountMenu);
+
+        // 지금 화면은 홈이므로 홈 탭을 "선택됨"으로 표시한다 (아이콘·글자가 주황색이 된다).
+        findViewById(R.id.nav_home).setSelected(true);
+
+        // 하단 탭·버튼: 아직 화면 내용은 비어 있지만 기획서의 화면 이동 순서대로 연결해 둔다.
+        openOnClick(R.id.camera_button, CameraActivity.class);       // 04 촬영
+        openOnClick(R.id.nav_map, PhotoMapActivity.class);           // 06 지도
+        openOnClick(R.id.nav_album, AlbumActivity.class);            // 07 앨범
+        openOnClick(R.id.nav_retro, RetroListActivity.class);        // 12 회고 모음
+        openOnClick(R.id.group_button, GroupManageActivity.class);   // 13 그룹 관리
+        openOnClick(R.id.create_trip_button, GroupManageActivity.class);
+        openOnClick(R.id.join_trip_button, GroupJoinActivity.class); // 14 그룹 참여
+    }
+
+    private void openOnClick(int viewId, Class<?> screen) {
+        findViewById(viewId).setOnClickListener(v -> startActivity(new Intent(this, screen)));
+    }
+
+    private void showAccountMenu(View anchor) {
+        PopupMenu menu = new PopupMenu(this, anchor);
+        menu.inflate(R.menu.menu_account);
+        menu.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_logout) {
+                viewModel.logout();
+                return true;
+            }
+            return false;
+        });
+        menu.show();
     }
 
     private void render(HomeViewModel.UiState state) {

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<!--
+    01 로그인 화면 (기획서 7쪽 시안).
+    위에서부터: 사진 카드 콜라주 → 제목 → 이메일·비밀번호 → 로그인 → 비밀번호 찾기
+               → 또는 → Google로 계속하기 → 회원가입 링크
+-->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -14,74 +18,123 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:paddingHorizontal="24dp"
+        android:paddingVertical="20dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/login_brand"
-            android:textAppearance="?attr/textAppearanceHeadlineLarge" />
+        <!-- 사진 카드 3장을 겹쳐 기울인 그림. 그림 파일 대신 drawable/photo_*.xml 로 그린다. -->
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:clipChildren="false"
+            android:importantForAccessibility="noHideDescendants">
+
+            <View
+                android:layout_width="96dp"
+                android:layout_height="122dp"
+                android:layout_gravity="center"
+                android:background="@drawable/photo_beach"
+                android:elevation="4dp"
+                android:rotation="-9"
+                android:translationX="-80dp"
+                android:translationY="4dp" />
+
+            <View
+                android:layout_width="96dp"
+                android:layout_height="122dp"
+                android:layout_gravity="center"
+                android:background="@drawable/photo_sunset"
+                android:elevation="4dp"
+                android:rotation="8"
+                android:translationX="80dp"
+                android:translationY="-6dp" />
+
+            <View
+                android:layout_width="116dp"
+                android:layout_height="150dp"
+                android:layout_gravity="center"
+                android:background="@drawable/photo_forest"
+                android:elevation="10dp"
+                android:rotation="-2"
+                android:translationY="8dp" />
+        </FrameLayout>
 
         <TextView
             android:id="@+id/screen_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="32dp"
-            android:text="@string/login_subtitle"
-            android:textAppearance="?attr/textAppearanceBodyLarge" />
+            android:layout_marginTop="24dp"
+            android:text="@string/login_headline"
+            android:textAppearance="@style/TextAppearance.Tteonam.Display" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/login_subtitle"
+            android:textAppearance="@style/TextAppearance.Tteonam.Caption" />
+
+        <!-- 이메일: 왼쪽에 편지 아이콘 -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/email_layout"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Tteonam.TextInput.NoHint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/hint_email">
+            android:layout_marginTop="24dp"
+            app:startIconContentDescription="@string/hint_email"
+            app:startIconDrawable="@drawable/ic_mail">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/email_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="emailAddress"
+                android:hint="@string/hint_email"
                 android:imeOptions="actionNext"
                 android:inputType="textEmailAddress"
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- 비밀번호: 왼쪽 자물쇠 아이콘, 오른쪽 보기 토글 -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/password_layout"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.Tteonam.TextInput.NoHint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:hint="@string/hint_password"
-            app:endIconMode="password_toggle">
+            android:layout_marginTop="10dp"
+            app:endIconMode="password_toggle"
+            app:startIconContentDescription="@string/hint_password"
+            app:startIconDrawable="@drawable/ic_lock">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/password_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:autofillHints="password"
+                android:hint="@string/hint_password"
                 android:imeOptions="actionDone"
                 android:inputType="textPassword"
                 android:maxLines="1" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- 회원가입 후 돌아왔을 때만 보이는 안내 -->
         <TextView
             android:id="@+id/info_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="10dp"
             android:text="@string/login_sign_up_done"
-            android:textColor="?attr/colorPrimary"
+            android:textAppearance="@style/TextAppearance.Tteonam.Body"
+            android:textColor="@color/tn_success"
             android:visibility="gone" />
 
+        <!-- 로그인 실패 안내 -->
         <TextView
             android:id="@+id/form_error_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:textColor="?attr/colorError"
+            android:layout_marginTop="10dp"
+            android:textAppearance="@style/TextAppearance.Tteonam.Body"
+            android:textColor="@color/tn_error"
             android:visibility="gone"
             tools:text="이메일과 비밀번호를 확인해 주세요."
             tools:visibility="visible" />
@@ -90,26 +143,93 @@
             android:id="@+id/login_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="16dp"
             android:text="@string/action_login" />
 
         <ProgressBar
             android:id="@+id/login_progress"
+            style="?android:attr/progressBarStyleSmall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:indeterminate="true"
+            android:layout_marginTop="10dp"
+            android:indeterminateTint="@color/tn_primary"
             android:visibility="gone" />
 
         <Button
-            android:id="@+id/sign_up_button"
-            style="@style/Widget.Material3.Button.TextButton"
+            android:id="@+id/forgot_password_button"
+            style="@style/Widget.Tteonam.Button.Text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:text="@string/action_forgot_password" />
+
+        <!-- ─── 또는 ─── -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/tn_divider" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="12dp"
+                android:text="@string/login_or"
+                android:textAppearance="@style/TextAppearance.Tteonam.Caption" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/tn_divider" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/google_button"
+            style="@style/Widget.Tteonam.Button.Outlined"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/action_google_continue"
+            app:icon="@drawable/ic_google_mark"
+            app:iconSize="20dp" />
+
+        <!-- 계정이 없으신가요? 회원가입 -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="8dp"
-            android:text="@string/action_go_sign_up" />
+            android:layout_marginTop="28dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/login_no_account"
+                android:textAppearance="@style/TextAppearance.Tteonam.Caption" />
+
+            <TextView
+                android:id="@+id/sign_up_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:minHeight="48dp"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="6dp"
+                android:text="@string/action_go_sign_up"
+                android:textColor="@color/tn_primary"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>

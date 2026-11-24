@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 하단 가운데 둥근 촬영 버튼 (누르면 물결 효과) -->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#33FFFFFF">
+    <item>
+        <shape android:shape="oval">
+            <solid android:color="@color/tn_primary" />
+        </shape>
+    </item>
+</ripple>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 홈 상단 "오늘의 기록" 짙은 카드 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/tn_ink" />
+    <corners android:radius="18dp" />
+</shape>

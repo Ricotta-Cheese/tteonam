@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 하단 탭: 선택된 탭은 주황, 나머지는 회색 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/tn_primary" android:state_selected="true" />
+    <item android:color="@color/tn_text_secondary" />
+</selector>

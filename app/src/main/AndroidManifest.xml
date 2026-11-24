@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-feature android:name="android.hardware.camera" android:required="false" />
 
     <application
@@ -18,6 +20,7 @@
 
         <activity
             android:name=".MainActivity"
+            android:screenOrientation="portrait"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -29,92 +32,103 @@
 
         <activity
             android:name=".LoginActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_login"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".SignUpActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_sign_up"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".CameraActivity"
-            android:exported="false"
+            android:screenOrientation="portrait"
+            android:exported="true"
             android:label="@string/title_camera"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ShareActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_share"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".PhotoMapActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_photo_map"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".AlbumActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_album"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".PhotoDetailActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_photo_detail"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".StatsActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_stats"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".RetroQuestionActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_retro_question"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".RetroViewActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_retro_view"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".RetroListActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_retro_list"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".GroupManageActivity"
-            android:exported="true"
+            android:screenOrientation="portrait"
+            android:exported="false"
             android:label="@string/title_group_manage"
-            android:windowSoftInputMode="adjustResize" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".GroupJoinActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_group_join"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".TravelTypeActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_travel_type"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".AwardActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_award"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ExploreActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_explore"
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".GroupCreateActivity"
+            android:screenOrientation="portrait"
             android:exported="false"
             android:label="@string/title_group_create"
             android:windowSoftInputMode="adjustResize" />
